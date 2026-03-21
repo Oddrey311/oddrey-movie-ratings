@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Movie Rankings</title>
+    <style>
+        /* THE DESIGN (CSS) */
+        body { font-family: sans-serif; background-color: #121212; color: white; padding: 20px; text-align: center; }
+        .controls { margin-bottom: 30px; }
+        input, select { padding: 10px; border-radius: 5px; border: none; margin: 5px; }
+        .movie-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 20px; }
+        .movie-card { background: #1e1e1e; border-radius: 10px; padding-bottom: 15px; overflow: hidden; border: 1px solid #333; }
+        .movie-card img { width: 100%; height: auto; }
+        .score { background: #ffcc00; color: black; padding: 3px 10px; border-radius: 5px; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <h1>🎬 My Movie Rankings</h1>
+    
+    <div class="controls">
+        <input type="text" id="search" placeholder="Search by title...">
+        <select id="sort">
+            <option value="high">Highest Score</option>
+            <option value="low">Lowest Score</option>
+            <option value="az">A-Z</option>
+        </select>
+    </div>
+
+    <div id="container" class="movie-grid"></div>
+
+    <script>
+        // THE DATA (You can add more movies here!)
+        const movies = [
+            { title: "Inception", score: 88, poster: "https://via.placeholder.com/200x300?text=Inception" },
+            { title: "The Dark Knight", score: 94, poster: "https://via.placeholder.com/200x300?text=The+Dark+Knight" },
+            { title: "Interstellar", score: 86, poster: "https://via.placeholder.com/200x300?text=Interstellar" },
+            { title: "The Matrix", score: 90, poster: "https://via.placeholder.com/200x300?text=The+Matrix" }
+        ];
+
+        const container = document.getElementById('container');
+        const searchInput = document.getElementById('search');
+        const sortSelect = document.getElementById('sort');
+
+        function displayMovies(data) {
+            container.innerHTML = data.map(m => `
+                <div class="movie-card">
+                    <img src="${m.poster}" alt="${m.title}">
+                    <h3>${m.title}</h3>
+                    <span class="score">${m.score}/100</span>
+                </div>
+            `).join('');
+        }
+
+        function filterAndSort() {
+            let filtered = movies.filter(m => m.title.toLowerCase().includes(searchInput.value.toLowerCase()));
+            
+            if (sortSelect.value === "high") filtered.sort((a,b) => b.score - a.score);
+            if (sortSelect.value === "low") filtered.sort((a,b) => a.score - b.score);
+            if (sortSelect.value === "az") filtered.sort((a,b) => a.title.localeCompare(b.title));
+            
+            displayMovies(filtered);
+        }
+
+        searchInput.addEventListener('input', filterAndSort);
+        sortSelect.addEventListener('change', filterAndSort);
+
+        // Initial Load
+        displayMovies(movies);
+    </script>
+</body>
+</html>
