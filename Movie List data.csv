@@ -1,0 +1,327 @@
+Movie,Date,Rating,Studio
+Lego Movie,2/11/2014,71,8
+Captain America: The Winter Soldier,4/7/2014,92,1
+X-Men: Days of Future Past,5/26/2014,72,19
+Guardians of the Galaxy,8/5/2014,88,1
+Dragon Ball Z: Battle of Gods,8/9/2014,82,21
+Teenage Mutant Ninja Turtles,8/9/2014,62,20
+Avengers: Age of Ultron,5/3/2015,74,1
+Jurassic World,6/12/2015,75,5
+Inside Out,6/19/2015,93,4
+Ant-Man,7/17/2015,77,1
+Dragon Ball Z: Resurrection F,8/4/2015,84,21
+Star Wars: Episode VII - The Force Awakens,12/18/2015,91,16
+Deadpool,2/12/2016,95,19
+Batman v Superman: Dawn of Justice,3/25/2016,78,2
+Captain America: Civil War,5/6/2016,97,1
+Captain America: Civil War,5/8/2016,97,1
+X-Men: Apocalypse,5/27/2016,60,1
+Teenage Mutant Ninja Turtles: Out of the Shadows,6/3/2016,55,20
+Suicide Squad,8/5/2016,61,2
+Doctor Strange,11/4/2016,83,1
+Rogue One: A Star Wars Story,12/16/2016,89,16
+Assassin's Creed,12/21/2016,52,19
+Sing,12/21/2016,63,7
+Logan,3/3/2017,92,19
+Guardians of the Galaxy Vol. 2,5/5/2017,83,1
+Wonder Woman,6/2/2017,86,2
+Captain Underpants,6/27/2017,66,6
+Spider-Man: Homecoming,7/7/2017,91,12
+Thor: Ragnarok,11/3/2017,92,1
+Justice League,11/17/2017,75,2
+Star Wars: Episode VIII - The Last Jedi,12/15/2017,76,16
+Black Panther,2/16/2018,98,1
+Winchester,2/18/2018,76,14
+Annihilation,2/23/2018,65,10
+Unsane,3/23/2018,61,22
+Avengers: Infinity War,4/26/2018,99,1
+Avengers: Infinity War,4/27/2018,99,1
+Avengers: Infinity War,4/28/2018,99,1
+Avengers: Infinity War,5/12/2018,99,1
+Avengers: Infinity War,5/13/2018,99,1
+Solo: A Star Wars Story,5/25/2018,60,16
+Deadpool 2,6/27/2018,92,19
+Ant-Man And The Wasp,7/5/2018,73,1
+Mission: Impossible - Fallout,9/27/2018,91,10
+"Predator, The",9/27/2018,63,17
+Venom,10/5/2018,90,12
+Instant Family,12/4/2018,72,10
+Once Upon A Deadpool,12/12/2018,78,19
+Ralph Breaks The Internet,12/12/2018,81,3
+Spider-Man: Into The Spider-Verse,12/27/2018,85,12
+Dr. Seuss' The Grinch,12/30/2018,66,7
+Ralph Breaks The Internet,12/30/2018,81,3
+"Upside, The",1/14/2019,50,22
+Aquaman,1/16/2019,77,2
+Dragon Ball Super: Broly,1/16/2019,62,21
+Dragon Ball Super: Broly,1/17/2019,62,21
+Captain Marvel,3/7/2019,83,1
+Enlarged to Show Detail,3/11/2019,74,22
+What Men Want,3/11/2019,57,10
+Captain Marvel,3/14/2019,83,1
+Lego Movie 2: The Second Part,3/14/2019,32,8
+Shazam!,4/4/2019,85,2
+Avengers: Endgame,4/25/2019,100,1
+Avengers: Endgame,4/27/2019,100,1
+Avengers: Endgame,4/29/2019,100,1
+Avengers: Endgame,5/7/2019,100,1
+X-Men: Dark Phoenix,6/6/2019,54,19
+Avengers: Endgame,6/27/2019,100,1
+Spider-Man: Far From Home,7/3/2019,92,12
+Spider-Man: Far From Home,7/7/2019,92,12
+Stuber,7/17/2019,63,19
+Aladdin,7/20/2019,83,3
+Gemini Man,10/16/2019,66,10
+Joker,10/16/2019,85,2
+Terminator: Dark Fate,10/31/2019,64,10
+Frozen 2,12/14/2019,59,3
+Jumanji: The Next Level,12/14/2019,79,12
+Star Wars: The Rise of Skywalker,12/19/2019,78,16
+Spies In Disguise,1/3/2020,58,
+Knives Out,1/6/2020,84,
+Star Wars: The Rise of Skywalker,1/6/2020,78,16
+1917,1/16/2020,85,
+Bad Boys For Life,1/16/2020,77,23
+Birds Of Prey,2/6/2020,62,2
+Dolittle,2/6/2020,63,
+"Invisible Man, The",2/27/2020,52,
+Sonic The Hedgehog,2/27/2020,79,10
+Cruella,5/27/2021,67,3
+Quiet Place Part II,5/27/2021,62,10
+Black Widow,7/8/2021,75,1
+Old,7/23/2021,67,
+Snake Eyes,7/26/2021,57,10
+Jungle Cruise,7/29/2021,69,3
+"Suicide Squad, The",8/5/2021,68,2
+Free Guy,8/12/2021,95,17
+Free Guy,8/22/2021,95,17
+Shang-Chi and the Legend of the Ten Rings,9/2/2021,83,1
+Venom: Let There Be Carnage,9/30/2021,45,2
+Eternals,11/4/2021,72,1
+Ghostbusters: Afterlife,11/18/2021,75,12
+"Matrix, The (1999)",12/7/2021,100,
+Spider-Man: No Way Home,12/16/2021,97,12
+"Matrix Resurrections, The",12/22/2021,69,
+Spider-Man: No Way Home,1/31/2022,97,12
+Spider-Man: No Way Home,1/31/2022,97,12
+GameStop: Rise of the Players,2/3/2022,44,
+Moonfall,2/3/2022,45,
+Jackass Forever,2/9/2022,45,
+Uncharted,2/17/2022,68,12
+Dog,2/21/2022,45,13
+"Batman, The",3/3/2022,82,2
+"Lost City, The",3/24/2022,79,10
+Morbius,3/31/2022,66,2
+Sonic The Hedgehog 2,4/7/2022,69,10
+"Bad Guys, The",4/21/2022,70,6
+"Unbearable Weight Of Massive Talent, The",4/27/2022,71,14
+Doctor Strange In The Multiverse Of Madness,5/5/2022,75,1
+Top Gun: Maverick,5/26/2022,78,10
+Jurassic World Dominion,6/9/2022,79,5
+Lightyear,6/16/2022,56,4
+Lightyear,6/19/2022,56,4
+Doctor Strange In The Multiverse Of Madness,6/21/2022,75,1
+Minions: The Rise Of Gru,6/30/2022,79,7
+Thor: Love And Thunder,7/7/2022,57,1
+Paws of Fury: The Legend of Hank,7/14/2022,23,20
+Nope,7/21/2022,74,5
+DC League of Super Pets,7/28/2022,56,2
+Bullet Train,8/4/2022,88,12
+Dragon Ball Super: Super Hero,8/18/2022,76,21
+Spider-Man: No Way Home,9/3/2022,97,12
+Black Adam,10/20/2022,64,2
+Black Panther: Wakanda Forever,11/10/2022,72,1
+Ant-Man and the Wasp: Quantumania,2/16/2023,61,1
+Cocaine Bear,3/1/2023,66,5
+65,3/9/2023,47,12
+Shazam! Fury Of The Gods,3/16/2023,55,2
+John Wick: Chapter 4,3/23/2023,67,14
+Dungeons & Dragons: Honor Among Thieves,3/30/2023,83,10
+"Super Mario Bros. Movie, The",4/5/2023,58,5
+Renfield,4/13/2023,73,5
+Air,4/25/2023,55,
+Guardians of the Galaxy Vol. 3,5/4/2023,79,1
+Spider-Man: Across The Spider-Verse,6/5/2023,88,12
+"Little Mermaid, The",6/7/2023,48,3
+Transformers: Rise of the Beasts,6/9/2023,49,10
+"Flash, The",6/15/2023,99,2
+Elemental,6/19/2023,67,3
+"Flash, The",6/19/2023,99,2
+No Hard Feelings,6/22/2023,81,12
+Indiana Jones And The Dial of Destiny,6/29/2023,67,16
+Joy Ride,7/6/2023,68,14
+Mission: Impossible - Dead Reckoning Part One,7/11/2023,91,10
+Barbie,7/20/2023,60,8
+Oppenheimer,7/20/2023,68,5
+Haunted Mansion,7/27/2023,65,3
+Teenage Mutant Ninja Turtles: Mutant Mayhem,8/1/2023,63,20
+Blue Beetle,8/17/2023,49,2
+Strays,8/17/2023,61,5
+"Creator, The",9/28/2023,42,19
+Dumb Money,9/28/2023,31,12
+Five Nights at Freddy's,10/26/2023,59,5
+Freelance,10/27/2023,58,22
+"Marvels, The",11/9/2023,78,1
+Anyone But You,12/21/2023,83,12
+Aquaman 2,12/22/2023,43,2
+Poor Things,12/27/2023,46,18
+Argylle,2/1/2024,77,25
+"Beekeeper, The",2/1/2024,68,13
+Madame Web,2/14/2024,49,12
+Dune: Part Two,2/29/2024,90,8
+"Matrix, The (1999)",3/20/2024,100,8
+Snack Shack,3/20/2024,31,22
+Ghostbusters: Frozen Empire,3/21/2024,68,23
+Godzilla x Kong: The New Empire,3/28/2024,59,8
+Civil War,4/11/2024,68,24
+Arcadian,4/17/2024,35,22
+Dune: Part Two,4/17/2024,90,8
+Spider-Man,4/17/2024,74,12
+Villains Inc,4/19/2024,40,22
+Deep Sky,4/20/2024,51,22
+"Ministry of Ungentlemanly Warfare, The",4/20/2024,69,10
+Spider-Man 2,4/20/2024,80,12
+Challengers,4/29/2024,48,13
+Spider-Man 3,4/29/2024,68,12
+"Fall Guy, The",5/2/2024,77,5
+Kingdom of the Planet of the Apes,5/9/2024,58,19
+The Amazing Spider-Man,5/9/2024,69,12
+IF,5/16/2024,42,10
+The Amazing Spider-Man 2,5/16/2024,67,12
+Spider-Man: Homecoming,5/21/2024,91,12
+Furiosa: A Mad Max Saga,5/23/2024,63,8
+Babes,5/29/2024,44,22
+"Garfield Movie, The",5/29/2024,43,23
+Spider-Man: Far From Home,5/29/2024,92,12
+The Blue Angels,5/29/2024,55,13
+Spider-Man: No Way Home,6/3/2024,97,12
+Bad Boys: Ride or Die,6/6/2024,56,23
+Inside Out 2,6/13/2024,75,4
+A Quiet Place: Day One,6/27/2024,43,10
+Twisters,7/18/2024,86,5
+Deadpool and Wolverine,7/25/2024,99,19
+Deadpool and Wolverine,7/31/2024,99,19
+Despicable Me 4,7/31/2024,76,7
+Longlegs,7/31/2024,43,22
+Borderlands,8/8/2024,60,14
+Beetlejuice Beetlejuice,9/5/2024,81,8
+Joker: Folie a Deux,10/4/2024,20,2
+Venom: The Last Dance,10/24/2024,51,12
+Dragon Ball DAIMA Eps. 1-3,11/10/2024,73,21
+Red One,11/10/2024,71,13
+Y2K,12/6/2024,55,24
+Kraven the Hunter,12/12/2024,53,12
+Sonic The Hedgehog 3,12/19/2024,76,10
+Flight Risk,1/23/2025,58,14
+Companion,1/30/2025,79,9
+Love Hurts,2/6/2025,69,12
+Captain America: Brave New World,2/13/2025,78,1
+Captain America: Brave New World,2/27/2025,78,1
+Last Breath,2/27/2025,79,15
+In the Lost Lands,3/6/2025,59,22
+Mickey 17,3/6/2025,79,8
+Novacaine,3/13/2025,89,12
+Black Bag,3/17/2025,57,15
+Snow White,3/20/2025,48,3
+Death of a Unicorn,3/27/2025,63,24
+"Working Man, A",3/27/2025,68,13
+"Minecraft Movie, A",4/3/2025,85,8
+"Minecraft Movie, A",4/8/2025,85,8
+"Amateur, The",4/10/2025,57,17
+"Minecraft Movie, A",4/10/2025,85,8
+Warfare,4/10/2025,51,24
+"Accountant 2, The",4/24/2025,61,13
+Until Dawn,4/24/2025,53,12
+Thunderbolts*,5/1/2025,87,1
+Thunderbolts*,5/7/2025,87,1
+Watch the Skies,5/7/2025,55,22
+Fight or Flight,5/8/2025,72,22
+Shadow Force,5/8/2025,61,14
+Final Destination: Bloodlines,5/15/2025,72,9
+Lilo and Stitch,5/22/2025,82,3
+Mission: Impossible – The Final Reckoning,5/22/2025,89,10
+Friendship,5/29/2025,52,24
+Karate Kid: Legends,5/29/2025,44,23
+Ballerina,6/5/2025,72,14
+Dogma: Ressurrected,6/5/2025,80,11
+How to Train Your Dragon,6/12/2025,97,6
+Materialist,6/12/2025,53,24
+28 Years Later,6/19/2025,44,23
+Bride Hard,6/19/2025,59,22
+Elio,6/19/2025,44,4
+How to Train Your Dragon,6/19/2025,97,6
+Jurassic World Rebirth,7/2/2025,56,5
+Superman,7/10/2025,86,2
+"Oh, Hi!",7/24/2025,67,12
+The Fantasic Four: First Steps,7/24/2025,89,1
+Eddington,7/27/2025,41,24
+Superman,7/27/2025,86,2
+The Fantasic Four: First Steps,7/27/2025,89,1
+"Bad Guys 2, The",7/31/2025,61,6
+She Rides Shotgun,8/3/2025,50,14
+The Fantasic Four: First Steps,8/3/2025,89,1
+The Naked Gun,8/3/2025,61,10
+Freakier Friday,8/7/2025,82,3
+Nobody 2,8/14/2025,52,5
+Weapons,8/14/2025,68,8
+Americana,8/21/2025,31,14
+Honey Don't!,8/21/2025,67,15
+Jaws 50th,8/28/2025,72,5
+The Roses,8/28/2025,79,18
+Batman (1989),9/1/2025,78,8
+Batman Returns (1992),9/1/2025,59,8
+Relay,9/1/2025,76,22
+Splitsville,9/10/2025,67,22
+The Threesome,9/10/2025,69,22
+Code 3,9/16/2025,73,22
+Afterburn,9/18/2025,51,22
+The Long Walk,9/18/2025,48,14
+One Battle After Another,9/25/2025,52,15
+Avatar:The Way of Water,10/2/2025,90,17
+Roofman,10/9/2025,69,11
+Tron:Ares,10/9/2025,59,3
+Good Fortune,10/16/2025,56,11
+Bugonia,10/30/2025,49,15
+Regretting You,10/30/2025,68,10
+Predator: Badlands,11/6/2025,80,17
+Now You See Me: Now You Don't,11/13/2025,72,14
+Running Man,11/13/2025,80,10
+Rental Family,11/20/2025,72,17
+Zootopia 2,11/26/2025,89,3
+Eternity,11/26/2025,81,14
+Five Nights at Freddy's 2,12/4/2025,68,5
+Ella McCay,12/11/2025,68,17
+Avatar: Fire and Ash,12/18/2025,90,17
+"Housemaid, The",12/18/2025,79,12
+Anaconda,12/24/2025,78,23
+Greenland 2: Migration,1/8/2026,48,14
+Is This Thing On?,1/8/2026,58,17
+Night Patrol,1/15/2026,38,22
+28 Years Later: The Bone Temple,1/15/2026,64,12
+Mercy,1/22/2026,64,13
+Send Help,1/29/2026,61,17
+Shelter,1/29/2026,55,22
+Iron Lung,1/31/2026,59,22
+"Moment, The",2/10/2026,30,24
+Iron Lung,2/10/2026,59,22
+"Good Luck, Have Fun, Don't Die",2/10/2026,85,22
+Crime 101,2/12/2026,48,13
+Cold Storage,2/12/2026,69,22
+Nirvana the Band the Show the Movie,2/19/2026,71,22
+Goat,2/19/2026,64,12
+How to Make a Killing,2/19/2026,67,24
+Twenty One Pilots: More Than We Ever Imagined,2/25/2026,100,22
+EPiC: Elvis Presley In Concert,2/27/2026,58,22
+Hoppers,3/5/2026,82,4
+Twenty One Pilots: More Than We Ever Imagined,3/7/2026,100,22
+Scream 7,3/12/2026,63,10
+Protector,3/12/2026,61,22
+For Worse,3/12/2026,69,22
+Reminders of Him,3/12/2026,75,5
+Undertone,3/12/2026,51,24
+Project Hail Mary,3/16/2026,83,13
+Project Hail Mary,3/19/2026,83,13
+Tow,3/19/2026,65,22
+Ready or Not 2: Here I Come,3/19/2026,69,19
+,,,
+Total,324,70.5,
