@@ -6,27 +6,36 @@
     <title>My Movie Rankings</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #121212; color: white; text-align: center; padding: 20px; margin: 0; }
-        h1 { margin-top: 40px; color: #e50914; text-transform: uppercase; letter-spacing: 2px; }
-        .controls { position: sticky; top: 0; background: #121212; padding: 20px; z-index: 100; border-bottom: 1px solid #333; margin-bottom: 30px; }
-        input, select { padding: 12px; border-radius: 8px; border: 1px solid #444; background: #222; color: white; margin: 10px; width: 250px; outline: none; }
-        input:focus { border-color: #e50914; }
-        .movie-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 30px; padding: 0 20px; }
-        .movie-card { background: #1e1e1e; border-radius: 12px; overflow: hidden; border: 1px solid #333; transition: transform 0.3s ease; display: flex; flex-direction: column; }
-        .movie-card:hover { transform: scale(1.03); border-color: #e50914; }
-        .movie-card img { width: 100%; height: 300px; object-fit: cover; background: #2a2a2a; }
-        .info { padding: 15px; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between; }
-        .score-tag { background: #e50914; padding: 4px 12px; border-radius: 20px; font-weight: bold; font-size: 0.9rem; align-self: center; }
-        h3 { font-size: 1rem; margin: 10px 0; min-height: 2.4em; }
-        #sentinel { height: 50px; margin-top: 20px; display: flex; justify-content: center; align-items: center; }
-        .loader-text { color: #888; font-style: italic; }
+        body { font-family: 'Segoe UI', sans-serif; background: #121212; color: white; text-align: center; padding: 0; margin: 0; }
+        .controls { position: sticky; top: 0; background: #1a1a1a; padding: 20px; z-index: 100; border-bottom: 2px solid #e50914; display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+        input, select { padding: 10px; border-radius: 5px; border: 1px solid #444; background: #222; color: white; width: 200px; }
+        .movie-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 20px; padding: 20px; }
+        .movie-card { background: #222; border-radius: 10px; overflow: hidden; border: 1px solid #333; transition: 0.3s; }
+        .movie-card:hover { border-color: #e50914; transform: translateY(-5px); }
+        .movie-card img { width: 100%; height: 260px; object-fit: cover; }
+        .info { padding: 10px; }
+        .studio-name { font-size: 0.75rem; color: #aaa; text-transform: uppercase; margin-bottom: 5px; display: block; }
+        .score-tag { background: #e50914; padding: 2px 8px; border-radius: 5px; font-weight: bold; font-size: 0.85rem; }
+        h3 { font-size: 0.95rem; margin: 5px 0 10px 0; height: 2.4em; overflow: hidden; }
+        #sentinel { padding: 40px; color: #888; }
     </style>
 </head>
 <body>
 
     <div class="controls">
-        <h1>🎬 My Unique Movie Gallery</h1>
-        <input type="text" id="search" placeholder="Search your rankings...">
+        <input type="text" id="search" placeholder="Search titles...">
+        
+        <select id="studioFilter">
+            <option value="all">All Studios</option>
+            <option value="1">Marvel</option>
+            <option value="2">DC</option>
+            <option value="3">Disney</option>
+            <option value="5">Universal</option>
+            <option value="8">Warner Bros</option>
+            <option value="10">Paramount</option>
+            <option value="12">Sony</option>
+        </select>
+
         <select id="sort">
             <option value="recent">Most Recent</option>
             <option value="high">Highest Rated</option>
@@ -35,68 +44,89 @@
     </div>
 
     <div id="container" class="movie-grid"></div>
-    <div id="sentinel"><span class="loader-text" id="loaderMsg">Scroll down to load more...</span></div>
+    <div id="sentinel">Scroll for more...</div>
 
     <script>
-        const TMDB_TOKEN = "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI3MzNjZmYyNDFlMzBiNDFiYzdmMTZhZTllYzRkOTdhOSIsIm5iZiI6MTc3NDA2MzY2NC40MDksInN1YiI6IjY5YmUxMDMwZjVkMGNkMmNiODcwODc0MCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.6v1eQGdH2fRMCICnH9sbIoVRFpQ2Xy5fgWwbcEL1hII"; 
+        const TMDB_TOKEN = "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI3MzNjZmYyNDFlMzBiNDFiYzdmMTZhZTllYzRkOTdhOSIsIm5iZiI6MTc3NDA2MzY2NC40MDksInN1YiI6IjY5YmUxMDMwZjVkMGNkMmNiODcwODc0MCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.6v1eQGdH2fRMCICnH9sbIoVRFpQ2Xy5fgWwbcEL1hII";
         
-        let allMovieData = []; 
-        let displayedMovies = []; 
-        let currentIndex = 0; 
-        const batchSize = 10;
-        let isSearching = false;
+        // This "Map" translates your spreadsheet numbers into names
+        const studioMap = {
+            "1": "Marvel",
+            "2": "DC",
+            "3": "Disney",
+            "4": "Pixar",
+            "5": "Universal",
+            "6": "DreamWorks",
+            "7": "Illumination",
+            "8": "Warner Bros",
+            "10": "Paramount",
+            "12": "Sony"
+        };
+
+        let allMovieData = [];
+        let filteredList = [];
+        let displayedMovies = [];
+        let currentIndex = 0;
+        const batchSize = 12;
 
         const container = document.getElementById('container');
-        const loaderMsg = document.getElementById('loaderMsg');
+        const searchInput = document.getElementById('search');
+        const studioFilter = document.getElementById('studioFilter');
+        const sortSelect = document.getElementById('sort');
 
         Papa.parse("Movie list - Sheet1.csv", {
             download: true,
             header: true,
             complete: function(results) {
-                // 1. Filter out empty rows
                 let rawData = results.data.filter(row => row.Movie && row.Movie.trim() !== "");
-
-                // 2. UNIQUE FILTER: Keep only the LAST instance of each movie name
+                
+                // Deduplicate: Keep only the latest entry
                 const uniqueMap = new Map();
-                rawData.forEach(row => {
-                    uniqueMap.set(row.Movie.trim(), row);
-                });
+                rawData.forEach(row => uniqueMap.set(row.Movie.trim(), row));
                 allMovieData = Array.from(uniqueMap.values());
-
+                
+                applyFilters(); // Initial load
                 setupInfiniteScroll();
             }
         });
 
-        function setupInfiniteScroll() {
-            const observer = new IntersectionObserver((entries) => {
-                if (entries[0].isIntersecting && !isSearching) {
-                    loadNextBatch();
-                }
-            }, { threshold: 0.1 });
-            observer.observe(document.getElementById('sentinel'));
+        function applyFilters() {
+            const searchTerm = searchInput.value.toLowerCase();
+            const selectedStudio = studioFilter.value;
+
+            // Filter by Search AND Studio
+            filteredList = allMovieData.filter(m => {
+                const matchesSearch = m.Movie.toLowerCase().includes(searchTerm);
+                const matchesStudio = (selectedStudio === "all") || (m.Studio === selectedStudio);
+                return matchesSearch && matchesStudio;
+            });
+
+            // Sort logic
+            if (sortSelect.value === "high") filteredList.sort((a,b) => b.Rating - a.Rating);
+            if (sortSelect.value === "az") filteredList.sort((a,b) => a.Movie.localeCompare(b.Movie));
+
+            // Reset display
+            currentIndex = 0;
+            displayedMovies = [];
+            container.innerHTML = "";
+            loadNextBatch();
         }
 
         async function loadNextBatch() {
-            if (currentIndex >= allMovieData.length) {
-                loaderMsg.innerText = "You've caught up on everything!";
-                return;
-            }
+            const nextBatch = filteredList.slice(currentIndex, currentIndex + batchSize);
+            if (nextBatch.length === 0) return;
 
-            loaderMsg.innerText = "Fetching posters...";
-            const nextBatch = allMovieData.slice(currentIndex, currentIndex + batchSize);
-            
-            const loadedWithPosters = await Promise.all(nextBatch.map(async (row) => {
-                const poster = await fetchPosterFromTMDB(row.Movie);
+            const withPosters = await Promise.all(nextBatch.map(async (row) => {
+                const poster = await fetchPoster(row.Movie);
                 return { ...row, poster };
             }));
 
-            displayedMovies = [...displayedMovies, ...loadedWithPosters];
+            displayedMovies = [...displayedMovies, ...withPosters];
             currentIndex += batchSize;
-            renderGallery(displayedMovies);
-            loaderMsg.innerText = "Scroll for more";
+            render();
         }
 
-        async function fetchPosterFromTMDB(title) {
+        async function fetchPoster(title) {
             try {
                 const response = await fetch(`https://api.themoviedb.org/3/search/movie?query=${encodeURIComponent(title)}`, {
                     headers: { Authorization: `Bearer ${TMDB_TOKEN}` }
@@ -106,44 +136,31 @@
             } catch (err) { return "https://via.placeholder.com/500x750?text=Error"; }
         }
 
-        function renderGallery(data) {
-            container.innerHTML = data.map(m => `
+        function render() {
+            container.innerHTML = displayedMovies.map(m => `
                 <div class="movie-card">
-                    <img src="${m.poster}" alt="${m.Movie}" loading="lazy">
+                    <img src="${m.poster}" loading="lazy">
                     <div class="info">
+                        <span class="studio-name">${studioMap[m.Studio] || 'Other'}</span>
                         <h3>${m.Movie}</h3>
-                        <span class="score-tag">${m.Rating ? m.Rating * 10 : '??'}/100</span>
+                        <span class="score-tag">${m.Rating * 10}/100</span>
                     </div>
                 </div>
             `).join('');
         }
 
-        document.getElementById('search').addEventListener('input', async (e) => {
-            const term = e.target.value.toLowerCase();
-            if (term === "") { isSearching = false; renderGallery(displayedMovies); return; }
-            isSearching = true;
-            const filtered = allMovieData.filter(m => m.Movie.toLowerCase().includes(term)).slice(0, 15);
-            const searchWithPosters = await Promise.all(filtered.map(async (row) => {
-                const poster = await fetchPosterFromTMDB(row.Movie);
-                return { ...row, poster };
-            }));
-            renderGallery(searchWithPosters);
-        });
+        function setupInfiniteScroll() {
+            const observer = new IntersectionObserver((entries) => {
+                if (entries[0].isIntersecting) loadNextBatch();
+            }, { threshold: 0.1 });
+            observer.observe(document.getElementById('sentinel'));
+        }
 
-        document.getElementById('sort').addEventListener('change', (e) => {
-            if (e.target.value === "high") {
-                allMovieData.sort((a,b) => b.Rating - a.Rating);
-            } else if (e.target.value === "az") {
-                allMovieData.sort((a,b) => a.Movie.localeCompare(b.Movie));
-            } else {
-                // Default back to "Recent" (order of appearance in spreadsheet)
-                // Note: Since we deduplicated, this is based on the LAST time seen.
-            }
-            currentIndex = 0;
-            displayedMovies = [];
-            container.innerHTML = "";
-            loadNextBatch();
-        });
+        // Listen for any changes
+        searchInput.addEventListener('input', applyFilters);
+        studioFilter.addEventListener('change', applyFilters);
+        sortSelect.addEventListener('change', applyFilters);
+
     </script>
 </body>
 </html>
