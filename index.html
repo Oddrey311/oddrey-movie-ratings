@@ -7,19 +7,13 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <style>
         body { font-family: 'Segoe UI', sans-serif; background: #121212; color: white; text-align: center; padding: 0; margin: 0; }
-        
-        /* HEADER */
         header { padding: 50px 20px 30px; background: linear-gradient(to bottom, #1a1a1a, #121212); }
         h1 { margin: 0; color: #e50914; text-transform: uppercase; letter-spacing: 4px; font-size: 2.8rem; }
         .subtitle { color: #888; margin-top: 10px; font-size: 1.1rem; }
-
-        /* CONTROLS */
         .controls { position: sticky; top: 0; background: #1a1a1a; padding: 15px; z-index: 100; border-bottom: 2px solid #e50914; display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; align-items: center; }
         #statsBar { background: #e50914; padding: 6px 18px; border-radius: 25px; font-size: 0.9rem; color: white; font-weight: bold; }
         input, select { padding: 10px; border-radius: 6px; border: 1px solid #444; background: #222; color: white; width: 170px; outline: none; }
         input:focus { border-color: #e50914; }
-
-        /* GRID */
         .movie-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 20px; padding: 25px; }
         .movie-card { background: #1e1e1e; border-radius: 12px; overflow: hidden; border: 1px solid #333; transition: 0.3s; cursor: pointer; position: relative; display: flex; flex-direction: column; }
         .movie-card:hover { border-color: #e50914; transform: translateY(-5px); }
@@ -27,18 +21,14 @@
         .score-badge { position: absolute; top: 10px; right: 10px; background: #e50914; color: white; width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.9rem; border: 2px solid #121212; }
         .info { padding: 12px; }
         h3 { font-size: 0.95rem; margin: 5px 0; height: 2.4em; overflow: hidden; line-height: 1.2; }
-
-        /* MODAL */
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); justify-content: center; align-items: center; overflow-y: auto; }
-        .modal-content { background: #1a1a1a; padding: 30px; border-radius: 20px; max-width: 850px; width: 92%; display: flex; flex-wrap: wrap; gap: 30px; position: relative; border: 1px solid #444; text-align: left; }
+        .modal-content { background: #1a1a1a; padding: 30px; border-radius: 20px; max-width: 850px; width: 92%; display: flex; flex-wrap: wrap; gap: 30px; position: relative; border: 1px solid #444; text-align: left; margin: 20px auto; }
         .modal-left { flex: 0 0 250px; text-align: center; }
         .modal-left img { width: 100%; border-radius: 12px; }
         .modal-right { flex: 1; min-width: 300px; }
         .modal-close { position: absolute; top: 15px; right: 25px; font-size: 35px; cursor: pointer; color: #666; }
         .stat-bar-bg { background: #333; height: 6px; border-radius: 3px; margin: 4px 0 10px 0; }
-        .stat-bar-fill { background: #e50914; height: 100%; border-radius: 3px; transition: width 0.8s; }
-        .review-text { margin-top: 20px; padding: 15px; background: #222; border-radius: 10px; border-left: 4px solid #e50914; font-style: italic; color: #ddd; }
-
+        .stat-bar-fill { background: #e50914; height: 100%; border-radius: 3px; }
         #sentinel { padding: 60px; color: #444; }
     </style>
 </head>
@@ -50,12 +40,15 @@
     </header>
 
     <div class="controls">
-        <div id="statsBar">Loading Master List...</div>
+        <div id="statsBar">Syncing archive...</div>
         <input type="text" id="search" placeholder="Search movies...">
         <select id="yearFilter"><option value="all">All Years</option></select>
         <select id="studioFilter">
             <option value="all">All Studios</option>
-            <option value="1">Marvel</option><option value="2">DC</option><option value="3">Disney</option><option value="4">Pixar</option><option value="5">Universal</option><option value="6">Dream Works</option><option value="7">Illumination</option><option value="8">Warner Bros</option><option value="9">New Line Cinema</option><option value="10">Paramount</option><option value="11">Miramax</option><option value="12">Sony Pictures</option><option value="13">MGM</option><option value="14">Lionsgate</option><option value="15">Focus Features</option><option value="16">Lucas film</option><option value="17">20th Century</option><option value="18">Searchlight</option><option value="19">20th Century Fox / Marvel</option><option value="20">Nickelodeon</option><option value="21">Toei Animation</option><option value="22">Independant</option><option value="23">Columbia Pictures</option><option value="24">A24</option><option value="25">Apple Studios</option>
+            <option value="1">Marvel</option><option value="2">DC</option><option value="3">Disney</option>
+            <option value="4">Pixar</option><option value="5">Universal</option><option value="6">Dream Works</option>
+            <option value="8">Warner Bros</option><option value="12">Sony Pictures</option><option value="17">20th Century</option>
+            <option value="24">A24</option><option value="25">Apple Studios</option>
         </select>
         <select id="sort">
             <option value="recent">Most Recent</option>
@@ -65,26 +58,24 @@
     </div>
 
     <div id="container" class="movie-grid"></div>
-    <div id="sentinel">LOADING ARCHIVE...</div>
+    <div id="sentinel">LOADING...</div>
 
     <div id="movieModal" class="modal">
         <div class="modal-content">
             <span class="modal-close" onclick="closeModal()">&times;</span>
             <div class="modal-left">
                 <img id="modalImg" src="">
-                <div style="margin-top:20px;">
-                    <span id="modalScore" style="font-size: 3.5rem; font-weight: bold; color: #e50914;"></span>
-                    <div style="color: #888; letter-spacing: 2px; font-size: 0.8rem;">RATING</div>
-                </div>
+                <h1 id="modalScore" style="color:#e50914; font-size: 3.5rem; margin: 15px 0 0;"></h1>
+                <small>FINAL RATING</small>
             </div>
             <div class="modal-right">
                 <h2 id="modalTitle" style="margin-top:0; font-size: 2rem;"></h2>
                 <p id="modalMeta" style="color:#888; border-bottom:1px solid #333; padding-bottom:15px;"></p>
                 <div id="breakdownSection">
-                    <strong style="font-size:0.8rem; color:#e50914; text-transform:uppercase;">Stat Breakdown</strong>
+                    <strong>Stat Breakdown</strong>
                     <div id="modalBreakdown" style="margin-top:10px;"></div>
                 </div>
-                <div id="modalReview" class="review-text" style="display:none;"></div>
+                <div id="modalReview" style="margin-top:20px; padding:15px; background:#222; border-radius:10px; border-left:4px solid #e50914; font-style:italic; display:none;"></div>
             </div>
         </div>
     </div>
@@ -99,20 +90,15 @@
         let displayedMovies = [];
         let currentIndex = 0;
 
-        // 1. START THE CHAIN
-        loadReviews();
+        // STARTUP
+        Papa.parse("Movie List.xlsx - Reviews.csv", {
+            download: true, header: false, skipEmptyLines: true,
+            complete: function(res) {
+                res.data.forEach(r => { if(r[0]) reviews[r[0].trim().toLowerCase()] = r[1]; });
+                loadSimpleData();
+            }
+        });
 
-        function loadReviews() {
-            Papa.parse("Movie List.xlsx - Reviews.csv", {
-                download: true, header: false, skipEmptyLines: true,
-                complete: function(res) {
-                    res.data.forEach(r => { if(r[0]) reviews[r[0].trim().toLowerCase()] = r[1]; });
-                    loadSimpleData();
-                }
-            });
-        }
-
-        // 2. LOAD THE BULK DATA (The "Data" file)
         function loadSimpleData() {
             Papa.parse("Movie List.xlsx - Data.csv", {
                 download: true, header: true, skipEmptyLines: true,
@@ -126,18 +112,13 @@
             });
         }
 
-        // 3. LOAD THE DETAILED DATA (The "Detailed Rankings" file)
         function loadDetailedData() {
             Papa.parse("Movie List.xlsx - Detailed Rankings.csv", {
                 download: true, header: true, skipEmptyLines: true,
                 complete: function(res) {
                     res.data.forEach(row => {
                         const title = (row.Title || row.Movie || "").trim();
-                        if (title) {
-                            const key = title.toLowerCase();
-                            // Overwrite simple data with detailed data if available
-                            masterMap.set(key, row); 
-                        }
+                        if (title) masterMap.set(title.toLowerCase(), row); 
                     });
                     finalizeList();
                 }
@@ -146,11 +127,8 @@
 
         function finalizeList() {
             allMovies = Array.from(masterMap.values());
-            
-            // Sort master list by date initially
             allMovies.sort((a, b) => new Date(b.Date || 0) - new Date(a.Date || 0));
 
-            // Populate Year Filter
             const years = new Set();
             allMovies.forEach(m => {
                 const yr = new Date(m.Date).getFullYear();
@@ -175,12 +153,10 @@
             filteredList = allMovies.filter(m => {
                 const title = (m.Title || m.Movie || "").toLowerCase();
                 const mYear = new Date(m.Date).getFullYear().toString();
-                return title.includes(term) && 
-                       (studio === "all" || m.Studio == studio) && 
-                       (year === "all" || mYear === year);
+                return title.includes(term) && (studio === "all" || m.Studio == studio) && (year === "all" || mYear === year);
             });
 
-            document.getElementById('statsBar').innerText = `${filteredList.length} Movies Showing`;
+            document.getElementById('statsBar').innerText = `${filteredList.length} Movies`;
 
             if (sortVal === "high") filteredList.sort((a,b) => (b['Final Rating'] || b.Rating || b.Rating*10) - (a['Final Rating'] || a.Rating || a.Rating*10));
             else if (sortVal === "az") filteredList.sort((a,b) => (a.Title || a.Movie).localeCompare(b.Title || b.Movie));
@@ -194,7 +170,8 @@
             if (next.length === 0) { document.getElementById('sentinel').innerText = "END OF LIST"; return; }
             
             const withPosters = await Promise.all(next.map(async (row) => {
-                const poster = await fetchPoster(row.Title || row.Movie);
+                // Pass Title, Date, AND TMDB_ID to the improved fetcher
+                const poster = await fetchPoster(row.Title || row.Movie, row.Date, row.tmdb_id);
                 return { ...row, poster };
             }));
 
@@ -202,13 +179,29 @@
             currentIndex += 12; render();
         }
 
-        async function fetchPoster(title) {
+        async function fetchPoster(title, dateStr, tmdbId) {
             try {
-                const res = await fetch(`https://api.themoviedb.org/3/search/movie?query=${encodeURIComponent(title)}`, {
+                // 1. Check for Manual ID (The 100% Precision Fix)
+                if (tmdbId && tmdbId.trim() !== "" && !isNaN(tmdbId)) {
+                    const res = await fetch(`https://api.themoviedb.org/3/movie/${tmdbId.trim()}`, {
+                        headers: { Authorization: `Bearer ${TMDB_TOKEN}` }
+                    });
+                    const d = await res.json();
+                    return d.poster_path ? `https://image.tmdb.org/t/p/w500${d.poster_path}` : "https://via.placeholder.com/500x750?text=No+Poster";
+                }
+
+                // 2. Search with Year Filtering (The Broad Fix)
+                let url = `https://api.themoviedb.org/3/search/movie?query=${encodeURIComponent(title)}`;
+                const year = new Date(dateStr).getFullYear();
+                if (!isNaN(year)) {
+                    url += `&primary_release_year=${year}`;
+                }
+
+                const response = await fetch(url, {
                     headers: { Authorization: `Bearer ${TMDB_TOKEN}` }
                 });
-                const d = await res.json();
-                return d.results?.[0] ? `https://image.tmdb.org/t/p/w500${d.results[0].poster_path}` : "https://via.placeholder.com/500x750?text=No+Poster";
+                const data = await response.json();
+                return data.results?.[0] ? `https://image.tmdb.org/t/p/w500${data.results[0].poster_path}` : "https://via.placeholder.com/500x750?text=No+Poster";
             } catch(e) { return "https://via.placeholder.com/500x750?text=Error"; }
         }
 
@@ -234,20 +227,13 @@
             const title = m.Title || m.Movie;
             document.getElementById('modalTitle').innerText = title;
             document.getElementById('modalImg').src = m.poster;
-            
-            let raw = m['Final Rating'] || m.Rating;
-            let score = raw <= 10 ? raw * 10 : raw;
-            document.getElementById('modalScore').innerText = Math.round(score || 0);
+            document.getElementById('modalScore').innerText = Math.round(m['Final Rating'] || m.Rating || m.Rating*10 || 0);
             document.getElementById('modalMeta').innerText = `${studioMap[m.Studio] || 'Other'} • Watched: ${m.Date}`;
-            
             const stats = renderStat("Story", m.Story) + renderStat("Character", m.Character) + renderStat("Visuals", m.Visuals) + renderStat("Performance", m.Performance) + renderStat("Pacing", m.Pacing);
-            document.getElementById('modalBreakdown').innerHTML = stats || "No breakdown available for this entry.";
-            
+            document.getElementById('modalBreakdown').innerHTML = stats || "No breakdown available.";
             const revBox = document.getElementById('modalReview');
             const revTxt = reviews[title.trim().toLowerCase()];
-            if(revTxt) { revBox.innerText = `"${revTxt}"`; revBox.style.display = 'block'; } 
-            else { revBox.style.display = 'none'; }
-            
+            if(revTxt) { revBox.innerText = `"${revTxt}"`; revBox.style.display = 'block'; } else { revBox.style.display = 'none'; }
             document.getElementById('movieModal').style.display = 'flex';
         }
 
