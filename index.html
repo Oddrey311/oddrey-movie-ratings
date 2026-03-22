@@ -134,23 +134,41 @@
             }
         });
 
-        // 2. Load Primary Data
-        function loadMainData() {
-            Papa.parse("Movie List.xlsx - Detailed Rankings.csv", {
-                download: true, header: true,
-                complete: function(results) {
-                    let rawData = results.data.filter(row => row.Title || row.Movie);
-                    const uniqueMap = new Map();
-                    rawData.forEach(row => {
-                        const title = (row.Title || row.Movie).trim();
-                        uniqueMap.set(title, row);
-                    });
-                    allMovies = Array.from(uniqueMap.values());
-                    applyFilters();
-                    setupInfiniteScroll();
-                }
+       // 2. LOAD PRIMARY DATA
+function loadMainData() {
+    Papa.parse("Movie List.xlsx - Detailed Rankings.csv", {
+        download: true, 
+        header: true,
+        complete: function(results) {
+            // Filter out rows that are completely empty
+            let rawData = results.data.filter(row => row.Title || row.Movie);
+            
+            const uniqueMap = new Map();
+
+            rawData.forEach(row => {
+                // Get the title and normalize it for the Map Key
+                const originalTitle = (row.Title || row.Movie || "").trim();
+                if (!originalTitle) return;
+
+                // Create a 'Normalized Key' (lowercase)
+                const normalizedKey = originalTitle.toLowerCase();
+
+                // DEDUPLICATION LOGIC:
+                // If we haven't seen this movie yet, add it.
+                // If we HAVE seen it, we overwrite the old one with the new one.
+                // This ensures the entry further down in your spreadsheet "wins."
+                uniqueMap.set(normalizedKey, row);
             });
+
+            // Convert our unique map back into the array for the website
+            allMovies = Array.from(uniqueMap.values());
+            
+            console.log(`Loaded ${allMovies.length} unique movies.`);
+            applyFilters();
+            setupInfiniteScroll();
         }
+    });
+}
 
         function renderStat(label, value) {
             if (!value || value == 0 || value === "") return "";
