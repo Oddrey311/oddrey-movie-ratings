@@ -8,30 +8,42 @@
     <style>
         body { font-family: 'Segoe UI', sans-serif; background: #121212; color: white; text-align: center; padding: 0; margin: 0; }
         .controls { position: sticky; top: 0; background: #1a1a1a; padding: 20px; z-index: 100; border-bottom: 2px solid #e50914; display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
-        input, select { padding: 10px; border-radius: 5px; border: 1px solid #444; background: #222; color: white; width: 200px; }
+        input, select { padding: 10px; border-radius: 5px; border: 1px solid #444; background: #222; color: white; width: 180px; outline: none; }
+        input:focus { border-color: #e50914; }
+
         .movie-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 20px; padding: 20px; }
-        .movie-card { background: #222; border-radius: 10px; overflow: hidden; border: 1px solid #333; transition: 0.3s; cursor: pointer; }
+        .movie-card { background: #222; border-radius: 10px; overflow: hidden; border: 1px solid #333; transition: 0.3s; cursor: pointer; display: flex; flex-direction: column; }
         .movie-card:hover { border-color: #e50914; transform: translateY(-5px); }
-        .movie-card img { width: 100%; height: 260px; object-fit: cover; }
-        .info { padding: 10px; }
-        .studio-name { font-size: 0.75rem; color: #aaa; text-transform: uppercase; margin-bottom: 5px; display: block; }
+        .movie-card img { width: 100%; height: 260px; object-fit: cover; background: #2a2a2a; }
+        .info { padding: 10px; flex-grow: 1; }
+        .studio-label { font-size: 0.7rem; color: #888; text-transform: uppercase; display: block; margin-bottom: 4px; }
         .score-tag { background: #e50914; padding: 2px 8px; border-radius: 5px; font-weight: bold; font-size: 0.85rem; }
         h3 { font-size: 0.95rem; margin: 5px 0 10px 0; height: 2.4em; overflow: hidden; }
-        
-        /* MODAL STYLE */
-        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); justify-content: center; align-items: center; }
-        .modal-content { background: #1a1a1a; padding: 30px; border-radius: 15px; max-width: 800px; width: 90%; display: flex; flex-wrap: wrap; gap: 20px; position: relative; border: 1px solid #444; text-align: left; }
-        .modal-left img { width: 250px; border-radius: 10px; }
-        .modal-right { flex: 1; min-width: 250px; }
-        .review-text { margin-top: 20px; padding: 15px; background: #222; border-radius: 8px; font-style: italic; color: #ddd; line-height: 1.6; }
+
+        /* MODAL */
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); justify-content: center; align-items: center; overflow-y: auto; }
+        .modal-content { background: #1a1a1a; padding: 30px; border-radius: 15px; max-width: 850px; width: 90%; display: flex; flex-wrap: wrap; gap: 30px; position: relative; border: 1px solid #444; text-align: left; margin: 20px auto; }
+        .modal-left { flex: 0 0 250px; text-align: center; }
+        .modal-left img { width: 100%; border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .modal-right { flex: 1; min-width: 300px; }
         .modal-close { position: absolute; top: 15px; right: 20px; font-size: 30px; cursor: pointer; color: #888; }
-        #sentinel { padding: 40px; color: #888; }
+        
+        /* STATS */
+        .breakdown { margin-top: 15px; display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .stat-row { margin-bottom: 8px; }
+        .stat-label { font-size: 0.75rem; color: #aaa; display: flex; justify-content: space-between; margin-bottom: 3px; }
+        .stat-bar-bg { background: #333; height: 6px; border-radius: 3px; }
+        .stat-bar-fill { background: #e50914; height: 100%; border-radius: 3px; transition: width 0.8s ease; }
+        .review-box { margin-top: 20px; padding: 15px; background: #222; border-radius: 8px; border-left: 4px solid #e50914; font-style: italic; color: #ddd; font-size: 0.95rem; }
+
+        #sentinel { padding: 40px; color: #555; font-style: italic; }
     </style>
 </head>
 <body>
 
     <div class="controls">
-        <input type="text" id="search" placeholder="Search titles...">
+        <input type="text" id="search" placeholder="Search movies...">
+        
         <select id="studioFilter">
             <option value="all">All Studios</option>
             <option value="1">Marvel</option>
@@ -39,13 +51,28 @@
             <option value="3">Disney</option>
             <option value="4">Pixar</option>
             <option value="5">Universal</option>
+            <option value="6">Dream Works</option>
+            <option value="7">Illumination</option>
             <option value="8">Warner Bros</option>
-            <option value="12">Sony</option>
-            <option value="15">A24</option>
-            <option value="17">Apple</option>
-            <option value="18">Amazon</option>
-            <option value="23">Netflix</option>
+            <option value="9">New Line Cinema</option>
+            <option value="10">Paramount</option>
+            <option value="11">Miramax</option>
+            <option value="12">Sony Pictures</option>
+            <option value="13">MGM</option>
+            <option value="14">Lionsgate</option>
+            <option value="15">Focus Features</option>
+            <option value="16">Lucas film</option>
+            <option value="17">20th Century</option>
+            <option value="18">Searchlight</option>
+            <option value="19">20th Century Fox / Marvel</option>
+            <option value="20">Nickelodeon</option>
+            <option value="21">Toei Animation</option>
+            <option value="22">Independant</option>
+            <option value="23">Columbia Pictures</option>
+            <option value="24">A24</option>
+            <option value="25">Apple Studios</option>
         </select>
+
         <select id="sort">
             <option value="recent">Most Recent</option>
             <option value="high">Highest Rated</option>
@@ -54,18 +81,28 @@
     </div>
 
     <div id="container" class="movie-grid"></div>
-    <div id="sentinel">Scroll for more...</div>
+    <div id="sentinel">Loading your journey...</div>
 
     <div id="movieModal" class="modal">
         <div class="modal-content">
             <span class="modal-close" onclick="closeModal()">&times;</span>
-            <div class="modal-left"><img id="modalImg" src=""></div>
+            <div class="modal-left">
+                <img id="modalImg" src="">
+                <div style="margin-top:20px;">
+                    <span id="modalScore" style="font-size:2.5rem; font-weight:bold; color:#e50914;"></span>
+                    <div style="font-size:0.8rem; color:#888; letter-spacing:1px;">SCORE / 100</div>
+                </div>
+            </div>
             <div class="modal-right">
-                <h2 id="modalTitle" style="color:#e50914; margin-top:0;"></h2>
-                <p><strong>Score:</strong> <span id="modalScore" class="score-tag"></span></p>
-                <p><strong>Studio:</strong> <span id="modalStudio"></span></p>
-                <p><strong>Watched:</strong> <span id="modalDate"></span></p>
-                <div id="modalReview" class="review-text" style="display:none;"></div>
+                <h2 id="modalTitle" style="margin-top:0; font-size:1.8rem;"></h2>
+                <p id="modalMeta" style="color:#888; border-bottom:1px solid #333; padding-bottom:15px;"></p>
+                
+                <div id="breakdownSection">
+                    <strong style="font-size:0.9rem; text-transform:uppercase; color:#e50914;">Rating Breakdown</strong>
+                    <div class="breakdown" id="modalBreakdown"></div>
+                </div>
+
+                <div id="modalReview" class="review-box" style="display:none;"></div>
             </div>
         </div>
     </div>
@@ -75,10 +112,11 @@
         
         const studioMap = {
             "1":"Marvel", "2":"DC", "3":"Disney", "4":"Pixar", "5":"Universal", 
-            "6":"DreamWorks", "7":"Illumination", "8":"Warner Bros", "9":"New Line", 
+            "6":"Dream Works", "7":"Illumination", "8":"Warner Bros", "9":"New Line Cinema", 
             "10":"Paramount", "11":"Miramax", "12":"Sony Pictures", "13":"MGM", 
-            "14":"Lionsgate", "15":"A24", "16":"20th Century", "17":"Apple", 
-            "18":"Amazon", "20":"Nickelodeon", "21":"Toei", "22":"Blumhouse", "23":"Netflix"
+            "14":"Lionsgate", "15":"Focus Features", "16":"Lucas film", "17":"20th Century", 
+            "18":"Searchlight", "19":"20th Century Fox / Marvel", "20":"Nickelodeon", 
+            "21":"Toei Animation", "22":"Independant", "23":"Columbia Pictures", "24":"A24", "25":"Apple Studios"
         };
 
         let allMovies = [];
@@ -87,7 +125,7 @@
         let displayedMovies = [];
         let currentIndex = 0;
 
-        // 1. LOAD REVIEWS FIRST
+        // 1. Load Reviews
         Papa.parse("Movie List.xlsx - Reviews.csv", {
             download: true, header: true,
             complete: function(res) {
@@ -96,14 +134,17 @@
             }
         });
 
-        // 2. LOAD MAIN MOVIE DATA
+        // 2. Load Primary Data
         function loadMainData() {
-            Papa.parse("Movie List.xlsx - Data.csv", {
+            Papa.parse("Movie List.xlsx - Detailed Rankings.csv", {
                 download: true, header: true,
                 complete: function(results) {
-                    let rawData = results.data.filter(row => row.Movie);
+                    let rawData = results.data.filter(row => row.Title || row.Movie);
                     const uniqueMap = new Map();
-                    rawData.forEach(row => uniqueMap.set(row.Movie.trim(), row));
+                    rawData.forEach(row => {
+                        const title = (row.Title || row.Movie).trim();
+                        uniqueMap.set(title, row);
+                    });
                     allMovies = Array.from(uniqueMap.values());
                     applyFilters();
                     setupInfiniteScroll();
@@ -111,26 +152,25 @@
             });
         }
 
-        function applyFilters() {
-            const term = document.getElementById('search').value.toLowerCase();
-            const studio = document.getElementById('studioFilter').value;
-            filteredList = allMovies.filter(m => {
-                return m.Movie.toLowerCase().includes(term) && (studio === "all" || m.Studio === studio);
-            });
-            if (document.getElementById('sort').value === "high") filteredList.sort((a,b) => b.Rating - a.Rating);
-            if (document.getElementById('sort').value === "az") filteredList.sort((a,b) => a.Movie.localeCompare(b.Movie));
-            currentIndex = 0; displayedMovies = []; container.innerHTML = ""; loadNextBatch();
+        function renderStat(label, value) {
+            if (!value || value == 0 || value === "") return "";
+            return `
+                <div class="stat-row">
+                    <div class="stat-label"><span>${label}</span><span>${value}</span></div>
+                    <div class="stat-bar-bg"><div class="stat-bar-fill" style="width: ${value}%"></div></div>
+                </div>`;
         }
 
         async function loadNextBatch() {
             const next = filteredList.slice(currentIndex, currentIndex + 12);
             if (next.length === 0) return;
             const withPosters = await Promise.all(next.map(async (row) => {
-                const poster = await fetchPoster(row.Movie);
+                const title = row.Title || row.Movie;
+                const poster = await fetchPoster(title);
                 return { ...row, poster };
             }));
             displayedMovies = [...displayedMovies, ...withPosters];
-            currentIndex += 12; render();
+            currentIndex += 12; renderGrid();
         }
 
         async function fetchPoster(title) {
@@ -143,14 +183,15 @@
             } catch(e) { return "https://via.placeholder.com/500x750?text=Error"; }
         }
 
-        function render() {
+        function renderGrid() {
+            const container = document.getElementById('container');
             container.innerHTML = displayedMovies.map((m, i) => `
                 <div class="movie-card" onclick="openModal(${i})">
                     <img src="${m.poster}" loading="lazy">
                     <div class="info">
-                        <span class="studio-name">${studioMap[m.Studio] || 'Other'}</span>
-                        <h3>${m.Movie}</h3>
-                        <span class="score-tag">${Math.round(m.Rating)}/100</span>
+                        <span class="studio-label">${studioMap[m.Studio] || 'Other'}</span>
+                        <h3>${m.Title || m.Movie}</h3>
+                        <span class="score-tag">${Math.round(m['Final Rating'] || m.Rating * 10 || 0)}/100</span>
                     </div>
                 </div>
             `).join('');
@@ -158,21 +199,47 @@
 
         function openModal(index) {
             const m = displayedMovies[index];
-            document.getElementById('modalTitle').innerText = m.Movie;
+            const title = m.Title || m.Movie;
+            document.getElementById('modalTitle').innerText = title;
             document.getElementById('modalImg').src = m.poster;
-            document.getElementById('modalScore').innerText = Math.round(m.Rating) + "/100";
-            document.getElementById('modalStudio').innerText = studioMap[m.Studio] || 'Other';
-            document.getElementById('modalDate').innerText = m.Date;
             
-            const reviewBox = document.getElementById('modalReview');
-            const reviewText = reviews[m.Movie.trim()];
-            if (reviewText) {
-                reviewBox.innerText = `"${reviewText}"`;
-                reviewBox.style.display = 'block';
+            let rawScore = m['Final Rating'] || m.Rating;
+            let displayScore = rawScore <= 10 ? rawScore * 10 : rawScore;
+            document.getElementById('modalScore').innerText = Math.round(displayScore || 0);
+            document.getElementById('modalMeta').innerText = `${studioMap[m.Studio] || 'Other Studio'} • Watched on ${m.Date || 'N/A'}`;
+            
+            const b = document.getElementById('modalBreakdown');
+            const stats = renderStat("Story", m.Story) + renderStat("Characters", m.Character) +
+                          renderStat("Performance", m.Performance) + renderStat("Genre", m['Genre Fulfilled']) +
+                          renderStat("Pacing", m.Pacing) + renderStat("Visuals", m.Visuals);
+
+            if (stats === "") {
+                document.getElementById('breakdownSection').style.display = 'none';
             } else {
-                reviewBox.style.display = 'none';
+                document.getElementById('breakdownSection').style.display = 'block';
+                b.innerHTML = stats;
             }
+
+            const rev = document.getElementById('modalReview');
+            const txt = reviews[title.trim()];
+            if (txt) { rev.innerText = `"${txt}"`; rev.style.display = 'block'; }
+            else { rev.style.display = 'none'; }
+
             document.getElementById('movieModal').style.display = 'flex';
+        }
+
+        function applyFilters() {
+            const term = document.getElementById('search').value.toLowerCase();
+            const studio = document.getElementById('studioFilter').value;
+            filteredList = allMovies.filter(m => {
+                const titleMatch = (m.Title || m.Movie).toLowerCase().includes(term);
+                const studioMatch = (studio === "all" || m.Studio === studio);
+                return titleMatch && studioMatch;
+            });
+            const sortVal = document.getElementById('sort').value;
+            if (sortVal === "high") filteredList.sort((a,b) => (b['Final Rating'] || b.Rating*10) - (a['Final Rating'] || a.Rating*10));
+            if (sortVal === "az") filteredList.sort((a,b) => (a.Title || a.Movie).localeCompare(b.Title || b.Movie));
+            currentIndex = 0; displayedMovies = []; document.getElementById('container').innerHTML = ""; loadNextBatch();
         }
 
         function closeModal() { document.getElementById('movieModal').style.display = 'none'; }
