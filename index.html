@@ -8,7 +8,7 @@
     <style>
         body { font-family: 'Segoe UI', sans-serif; background: #121212; color: white; text-align: center; padding: 0; margin: 0; }
         
-        /* HEADER & BRANDING */
+        /* HEADER */
         header { padding: 40px 20px 30px; background: linear-gradient(to bottom, #1a1a1a, #121212); }
         .header-img { width: 100%; max-width: 600px; height: auto; border-radius: 15px; margin-bottom: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid #333; }
         h1 { margin: 0; color: #e50914; text-transform: uppercase; letter-spacing: 4px; font-size: 2.8rem; }
@@ -16,7 +16,7 @@
 
         /* CONTROLS */
         .controls { position: sticky; top: 0; background: #1a1a1a; padding: 15px; z-index: 100; border-bottom: 2px solid #e50914; display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; align-items: center; }
-        #statsBar { background: #e50914; padding: 6px 18px; border-radius: 25px; font-size: 0.9rem; color: white; font-weight: bold; min-width: 150px; }
+        #statsBar { background: #e50914; padding: 6px 18px; border-radius: 25px; font-size: 0.9rem; color: white; font-weight: bold; }
         input, select { padding: 10px; border-radius: 6px; border: 1px solid #444; background: #222; color: white; width: 170px; outline: none; }
         
         /* GRID */
@@ -38,7 +38,6 @@
         .stat-bar-bg { background: #333; height: 6px; border-radius: 3px; margin: 4px 0 10px 0; }
         .stat-bar-fill { background: #e50914; height: 100%; border-radius: 3px; }
         .review-text { margin-top: 20px; padding: 15px; background: #222; border-radius: 10px; border-left: 4px solid #e50914; font-style: italic; color: #ddd; }
-
         #sentinel { padding: 60px; color: #444; }
     </style>
 </head>
@@ -51,7 +50,7 @@
     </header>
 
     <div class="controls">
-        <div id="statsBar">Archive Loading...</div>
+        <div id="statsBar">Syncing...</div>
         <input type="text" id="search" placeholder="Search movies...">
         <select id="yearFilter"><option value="all">All Years</option></select>
         <select id="studioFilter">
@@ -100,7 +99,7 @@
         let displayedMovies = [];
         let currentIndex = 0;
 
-        // STEP 1: LOAD REVIEWS
+        // 1. Load Reviews
         Papa.parse("Movie List.xlsx - Reviews.csv", {
             download: true, header: false, skipEmptyLines: true,
             complete: function(res) {
@@ -110,29 +109,28 @@
             error: () => loadMovieData()
         });
 
-        // STEP 2: LOAD MAIN DATA (Strictly one sheet now)
+        // 2. Load Main Movie Data
         function loadMovieData() {
             Papa.parse("Movie List.xlsx - Data.csv", {
                 download: true, header: true, skipEmptyLines: true,
                 complete: function(results) {
-                    let rawData = results.data.filter(row => row.Movie);
+                    let data = results.data.filter(row => row.Movie);
 
-                    // Ensure most recent entries are at the top before we deduplicate
-                    rawData.sort((a, b) => new Date(b.Date || 0) - new Date(a.Date || 0));
+                    // A. Sort by Date Newest first so we keep the latest entry when deduplicating
+                    data.sort((a, b) => new Date(b.Date || 0) - new Date(a.Date || 0));
 
                     const uniqueMap = new Map();
                     const years = new Set();
 
-                    rawData.forEach(row => {
-                        const title = row.Movie.trim();
+                    data.forEach(row => {
+                        const title = (row.Movie || "").trim();
                         if (!title) return;
-
-                        // Create an "Ultra-Clean Key" to prevent duplicates
-                        // This removes spaces and punctuation so "Inception " and "Inception" match.
-                        const cleanKey = title.toLowerCase().replace(/[^a-z0-9]/g, "");
-
-                        if (!uniqueMap.has(cleanKey)) {
-                            uniqueMap.set(cleanKey, row);
+                        
+                        // Normalized key (no spaces/case sensitive issues)
+                        const key = title.toLowerCase();
+                        
+                        if (!uniqueMap.has(key)) {
+                            uniqueMap.set(key, row);
                             const d = new Date(row.Date);
                             if (!isNaN(d.getFullYear())) years.add(d.getFullYear());
                         }
@@ -140,7 +138,7 @@
 
                     allMovies = Array.from(uniqueMap.values());
                     
-                    // Fill the Year Dropdown
+                    // Populate Years
                     const yrSel = document.getElementById('yearFilter');
                     Array.from(years).sort((a,b) => b-a).forEach(yr => {
                         const opt = document.createElement('option');
@@ -167,10 +165,10 @@
                        (year === "all" || mYear === year);
             });
 
-            document.getElementById('statsBar').innerText = `${filteredList.length} Unique Movies`;
+            document.getElementById('statsBar').innerText = `${filteredList.length} Movies`;
 
-            // Sort logic
-            if (sortVal === "high") filteredList.sort((a,b) => (b.Rating || 0) - (a.Rating || 0));
+            // Final Sort logic
+            if (sortVal === "high") filteredList.sort((a,b) => (b.Rating || b['Final Rating'] || 0) - (a.Rating || a['Final Rating'] || 0));
             else if (sortVal === "az") filteredList.sort((a,b) => a.Movie.localeCompare(b.Movie));
             else filteredList.sort((a, b) => new Date(b.Date || 0) - new Date(a.Date || 0));
 
@@ -179,8 +177,9 @@
 
         async function loadNextBatch() {
             const next = filteredList.slice(currentIndex, currentIndex + 12);
-            if (next.length === 0) { document.getElementById('sentinel').innerText = "END OF ARCHIVE"; return; }
+            if (next.length === 0) { document.getElementById('sentinel').innerText = "END OF LIST"; return; }
             
+            // Poster fetching fix: Use row.Movie specifically
             const withPosters = await Promise.all(next.map(async (row) => {
                 const poster = await fetchPoster(row.Movie, row.Date, row.tmdb_id);
                 return { ...row, poster };
@@ -192,26 +191,30 @@
 
         async function fetchPoster(title, dateStr, tmdbId) {
             try {
+                // Precision Fix: Use Manual ID if present
                 if (tmdbId && tmdbId.trim() !== "" && !isNaN(tmdbId)) {
                     const res = await fetch(`https://api.themoviedb.org/3/movie/${tmdbId.trim()}`, {
                         headers: { Authorization: `Bearer ${TMDB_TOKEN}` }
                     });
                     const d = await res.json();
-                    return d.poster_path ? `https://image.tmdb.org/p/w500${d.poster_path}` : "https://via.placeholder.com/500x750?text=No+Poster";
+                    return d.poster_path ? `https://image.tmdb.org/t/p/w500${d.poster_path}` : "https://via.placeholder.com/500x750?text=No+Poster";
                 }
+
+                // General search with Year fallback
                 let url = `https://api.themoviedb.org/3/search/movie?query=${encodeURIComponent(title)}`;
                 const year = new Date(dateStr).getFullYear();
                 if (!isNaN(year)) url += `&primary_release_year=${year}`;
+
                 const response = await fetch(url, { headers: { Authorization: `Bearer ${TMDB_TOKEN}` } });
                 const data = await response.json();
-                return data.results?.[0] ? `https://image.tmdb.org/p/w500${data.results[0].poster_path}` : "https://via.placeholder.com/500x750?text=No+Poster";
+                return data.results?.[0] ? `https://image.tmdb.org/t/p/w500${data.results[0].poster_path}` : "https://via.placeholder.com/500x750?text=No+Poster";
             } catch(e) { return "https://via.placeholder.com/500x750?text=Error"; }
         }
 
         function render() {
             document.getElementById('container').innerHTML = displayedMovies.map((m, i) => `
                 <div class="movie-card" onclick="openModal(${i})">
-                    <div class="score-badge">${Math.round(m.Rating || 0)}</div>
+                    <div class="score-badge">${Math.round(m.Rating || m['Final Rating'] || 0)}</div>
                     <img src="${m.poster}" loading="lazy">
                     <div class="info">
                         <small style="color:#666; font-weight:bold;">${studioMap[m.Studio] || 'Other'}</small>
@@ -221,7 +224,6 @@
         }
 
         function renderStat(label, val) {
-            // This is the "Lazy" logic: hide bars if data is missing or zero
             if(!val || val == 0 || val === "" || val === " ") return "";
             return `<div><div style="display:flex; justify-content:space-between; font-size:0.7rem; color:#888; text-transform:uppercase;"><span>${label}</span><span>${val}</span></div><div class="stat-bar-bg"><div class="stat-bar-fill" style="width:${val}%"></div></div></div>`;
         }
@@ -231,10 +233,9 @@
             const title = m.Movie;
             document.getElementById('modalTitle').innerText = title;
             document.getElementById('modalImg').src = m.poster;
-            document.getElementById('modalScore').innerText = Math.round(m.Rating || 0);
+            document.getElementById('modalScore').innerText = Math.round(m.Rating || m['Final Rating'] || 0);
             document.getElementById('modalMeta').innerText = `${studioMap[m.Studio] || 'Other'} • Watched: ${m.Date}`;
             
-            // Build the stats list
             const stats = 
                 renderStat("Story", m.Story) + 
                 renderStat("Character", m.Character) + 
