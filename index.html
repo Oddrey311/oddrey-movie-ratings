@@ -18,8 +18,7 @@
         .controls { position: sticky; top: 0; background: #1a1a1a; padding: 15px; z-index: 100; border-bottom: 2px solid #e50914; display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; align-items: center; }
         #statsBar { background: #e50914; padding: 6px 18px; border-radius: 25px; font-size: 0.9rem; color: white; font-weight: bold; }
         input, select { padding: 10px; border-radius: 6px; border: 1px solid #444; background: #222; color: white; width: 170px; outline: none; }
-        input:focus { border-color: #e50914; }
-
+        
         /* GRID */
         .movie-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 20px; padding: 25px; }
         .movie-card { background: #1e1e1e; border-radius: 12px; overflow: hidden; border: 1px solid #333; transition: 0.3s; cursor: pointer; position: relative; display: flex; flex-direction: column; }
@@ -37,7 +36,7 @@
         .modal-right { flex: 1; min-width: 300px; }
         .modal-close { position: absolute; top: 15px; right: 25px; font-size: 35px; cursor: pointer; color: #666; }
         .stat-bar-bg { background: #333; height: 6px; border-radius: 3px; margin: 4px 0 10px 0; }
-        .stat-bar-fill { background: #e50914; height: 100%; border-radius: 3px; transition: width 0.8s; }
+        .stat-bar-fill { background: #e50914; height: 100%; border-radius: 3px; }
         .review-text { margin-top: 20px; padding: 15px; background: #222; border-radius: 10px; border-left: 4px solid #e50914; font-style: italic; color: #ddd; }
 
         #sentinel { padding: 60px; color: #444; }
@@ -52,7 +51,7 @@
     </header>
 
     <div class="controls">
-        <div id="statsBar">Syncing archive...</div>
+        <div id="statsBar">Syncing...</div>
         <input type="text" id="search" placeholder="Search movies...">
         <select id="yearFilter"><option value="all">All Years</option></select>
         <select id="studioFilter">
@@ -84,7 +83,7 @@
                 <p id="modalMeta" style="color:#888; border-bottom:1px solid #333; padding-bottom:15px;"></p>
                 <div id="breakdownSection">
                     <strong style="font-size:0.8rem; color:#e50914; text-transform:uppercase;">Score Breakdown</strong>
-                    <div id="modalBreakdown" style="margin-top:10px;"></div>
+                    <div id="modalBreakdown" style="margin-top:10px; display: grid; grid-template-columns: 1fr 1fr; gap: 0 20px;"></div>
                 </div>
                 <div id="modalReview" class="review-text" style="display:none;"></div>
             </div>
@@ -95,72 +94,59 @@
         const TMDB_TOKEN = "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI3MzNjZmYyNDFlMzBiNDFiYzdmMTZhZTllYzRkOTdhOSIsIm5iZiI6MTc3NDA2MzY2NC40MDksInN1YiI6IjY5YmUxMDMwZjVkMGNkMmNiODcwODc0MCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.6v1eQGdH2fRMCICnH9sbIoVRFpQ2Xy5fgWwbcEL1hII";
         const studioMap = { "1":"Marvel", "2":"DC", "3":"Disney", "4":"Pixar", "5":"Universal", "6":"Dream Works", "7":"Illumination", "8":"Warner Bros", "9":"New Line Cinema", "10":"Paramount", "11":"Miramax", "12":"Sony Pictures", "13":"MGM", "14":"Lionsgate", "15":"Focus Features", "16":"Lucas film", "17":"20th Century", "18":"Searchlight", "19":"20th Century Fox / Marvel", "20":"Nickelodeon", "21":"Toei Animation", "22":"Independant", "23":"Columbia Pictures", "24":"A24", "25":"Apple Studios" };
 
-        let masterMap = new Map();
+        let allMovies = [];
         let reviews = {};
         let filteredList = [];
         let displayedMovies = [];
         let currentIndex = 0;
 
-        // Start chain
-        loadReviews();
+        // 1. LOAD REVIEWS FIRST (Assuming you kept your Reviews.csv separate)
+        Papa.parse("Movie List.xlsx - Reviews.csv", {
+            download: true, header: false, skipEmptyLines: true,
+            complete: function(res) {
+                res.data.forEach(r => { if(r[0]) reviews[r[0].trim().toLowerCase()] = r[1]; });
+                loadMovieData();
+            },
+            error: () => loadMovieData() // Continue even if reviews fail
+        });
 
-        function loadReviews() {
-            Papa.parse("Movie List.xlsx - Reviews.csv", {
-                download: true, header: false, skipEmptyLines: true,
-                complete: function(res) {
-                    res.data.forEach(r => { if(r[0]) reviews[r[0].trim().toLowerCase()] = r[1]; });
-                    loadStandardData();
-                }
-            });
-        }
-
-        function loadStandardData() {
+        // 2. LOAD MAIN DATA (Only looking at Data.csv now)
+        function loadMovieData() {
             Papa.parse("Movie List.xlsx - Data.csv", {
                 download: true, header: true, skipEmptyLines: true,
-                complete: function(res) {
-                    res.data.forEach(row => {
-                        const title = (row.Movie || "").trim();
-                        if (title) masterMap.set(title.toLowerCase(), row);
-                    });
-                    loadDetailedData();
-                }
-            });
-        }
+                complete: function(results) {
+                    let data = results.data.filter(row => row.Movie);
 
-        function loadDetailedData() {
-            Papa.parse("Movie List.xlsx - Detailed Rankings.csv", {
-                download: true, header: true, skipEmptyLines: true,
-                complete: function(res) {
-                    res.data.forEach(row => {
-                        const title = (row.Title || row.Movie || "").trim();
-                        if (title) {
-                            const key = title.toLowerCase();
-                            const existing = masterMap.get(key) || {};
-                            masterMap.set(key, { ...existing, ...row }); 
+                    // Sort by Date Descending so latest viewings appear first
+                    data.sort((a, b) => new Date(b.Date || 0) - new Date(a.Date || 0));
+
+                    const uniqueMap = new Map();
+                    const years = new Set();
+
+                    data.forEach(row => {
+                        const title = (row.Movie || "").trim();
+                        if (!title) return;
+                        const key = title.toLowerCase();
+                        if (!uniqueMap.has(key)) {
+                            uniqueMap.set(key, row);
+                            const d = new Date(row.Date);
+                            if (!isNaN(d.getFullYear())) years.add(d.getFullYear());
                         }
                     });
-                    finalizeList();
+
+                    allMovies = Array.from(uniqueMap.values());
+                    
+                    // Populate Year Filter
+                    const yrSel = document.getElementById('yearFilter');
+                    Array.from(years).sort((a,b) => b-a).forEach(yr => {
+                        const opt = document.createElement('option');
+                        opt.value = yr; opt.innerText = yr; yrSel.appendChild(opt);
+                    });
+
+                    applyFilters();
+                    setupInfiniteScroll();
                 }
             });
-        }
-
-        function finalizeList() {
-            allMovies = Array.from(masterMap.values());
-            allMovies.sort((a, b) => new Date(b.Date || 0) - new Date(a.Date || 0));
-
-            const years = new Set();
-            allMovies.forEach(m => {
-                const yr = new Date(m.Date).getFullYear();
-                if (!isNaN(yr)) years.add(yr);
-            });
-            const yrSel = document.getElementById('yearFilter');
-            Array.from(years).sort((a,b) => b-a).forEach(yr => {
-                const opt = document.createElement('option');
-                opt.value = yr; opt.innerText = yr; yrSel.appendChild(opt);
-            });
-
-            applyFilters();
-            setupInfiniteScroll();
         }
 
         function applyFilters() {
@@ -170,15 +156,18 @@
             const sortVal = document.getElementById('sort').value;
 
             filteredList = allMovies.filter(m => {
-                const title = (m.Title || m.Movie || "").toLowerCase();
+                const title = m.Movie.toLowerCase();
                 const mYear = new Date(m.Date).getFullYear().toString();
-                return title.includes(term) && (studio === "all" || m.Studio == studio) && (year === "all" || mYear === year);
+                return title.includes(term) && 
+                       (studio === "all" || m.Studio == studio) && 
+                       (year === "all" || mYear === year);
             });
 
-            document.getElementById('statsBar').innerText = `${filteredList.length} Movies`;
+            document.getElementById('statsBar').innerText = `${filteredList.length} Unique Movies`;
 
-            if (sortVal === "high") filteredList.sort((a,b) => (b['Final Rating'] || b.Rating || b.Rating*10) - (a['Final Rating'] || a.Rating || a.Rating*10));
-            else if (sortVal === "az") filteredList.sort((a,b) => (a.Title || a.Movie).localeCompare(b.Title || b.Movie));
+            // Sorting logic
+            if (sortVal === "high") filteredList.sort((a,b) => (b.Rating || 0) - (a.Rating || 0));
+            else if (sortVal === "az") filteredList.sort((a,b) => a.Movie.localeCompare(b.Movie));
             else filteredList.sort((a, b) => new Date(b.Date || 0) - new Date(a.Date || 0));
 
             currentIndex = 0; displayedMovies = []; document.getElementById('container').innerHTML = ""; loadNextBatch();
@@ -186,10 +175,10 @@
 
         async function loadNextBatch() {
             const next = filteredList.slice(currentIndex, currentIndex + 12);
-            if (next.length === 0) { document.getElementById('sentinel').innerText = "END OF LIST"; return; }
+            if (next.length === 0) { document.getElementById('sentinel').innerText = "END OF ARCHIVE"; return; }
             
             const withPosters = await Promise.all(next.map(async (row) => {
-                const poster = await fetchPoster(row.Title || row.Movie, row.Date, row.tmdb_id);
+                const poster = await fetchPoster(row.Movie, row.Date, row.tmdb_id);
                 return { ...row, poster };
             }));
 
@@ -218,34 +207,50 @@
         function render() {
             document.getElementById('container').innerHTML = displayedMovies.map((m, i) => `
                 <div class="movie-card" onclick="openModal(${i})">
-                    <div class="score-badge">${Math.round(m['Final Rating'] || m.Rating || m.Rating*10 || 0)}</div>
+                    <div class="score-badge">${Math.round(m.Rating || 0)}</div>
                     <img src="${m.poster}" loading="lazy">
                     <div class="info">
                         <small style="color:#666; font-weight:bold;">${studioMap[m.Studio] || 'Other'}</small>
-                        <h3>${m.Title || m.Movie}</h3>
+                        <h3>${m.Movie}</h3>
                     </div>
                 </div>`).join('');
         }
 
         function renderStat(label, val) {
-            if(!val || val == 0) return "";
-            return `<div><div style="display:flex; justify-content:space-between; font-size:0.7rem; color:#888;"><span>${label}</span><span>${val}</span></div><div class="stat-bar-bg"><div class="stat-bar-fill" style="width:${val}%"></div></div></div>`;
+            // IGNORE DETAILS IF EMPTY: Check if value is missing, 0, or blank
+            if(!val || val == 0 || val === "") return "";
+            return `<div><div style="display:flex; justify-content:space-between; font-size:0.7rem; color:#888; text-transform:uppercase;"><span>${label}</span><span>${val}</span></div><div class="stat-bar-bg"><div class="stat-bar-fill" style="width:${val}%"></div></div></div>`;
         }
 
         function openModal(i) {
             const m = displayedMovies[i];
-            const title = m.Title || m.Movie;
+            const title = m.Movie;
             document.getElementById('modalTitle').innerText = title;
             document.getElementById('modalImg').src = m.poster;
-            let raw = m['Final Rating'] || m.Rating;
-            let score = raw <= 10 ? raw * 10 : raw;
-            document.getElementById('modalScore').innerText = Math.round(score || 0);
+            document.getElementById('modalScore').innerText = Math.round(m.Rating || 0);
             document.getElementById('modalMeta').innerText = `${studioMap[m.Studio] || 'Other'} • Watched: ${m.Date}`;
-            const stats = renderStat("Story", m.Story) + renderStat("Character", m.Character) + renderStat("Visuals", m.Visuals) + renderStat("Performance", m.Performance) + renderStat("Pacing", m.Pacing);
-            document.getElementById('modalBreakdown').innerHTML = stats || "No breakdown available for this entry.";
+            
+            // Generate breakdown stats
+            const stats = 
+                renderStat("Story", m.Story) + 
+                renderStat("Character", m.Character) + 
+                renderStat("Visuals", m.Visuals) + 
+                renderStat("Performance", m.Performance) + 
+                renderStat("Pacing", m.Pacing) +
+                renderStat("Genre", m['Genre Fulfilled']);
+
+            const breakdown = document.getElementById('modalBreakdown');
+            if (stats === "") {
+                document.getElementById('breakdownSection').style.display = 'none';
+            } else {
+                document.getElementById('breakdownSection').style.display = 'block';
+                breakdown.innerHTML = stats;
+            }
+            
             const revBox = document.getElementById('modalReview');
             const revTxt = reviews[title.trim().toLowerCase()];
             if(revTxt) { revBox.innerText = `"${revTxt}"`; revBox.style.display = 'block'; } else { revBox.style.display = 'none'; }
+            
             document.getElementById('movieModal').style.display = 'flex';
         }
 
