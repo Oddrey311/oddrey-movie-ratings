@@ -9,8 +9,8 @@
         body { font-family: 'Segoe UI', sans-serif; background: #121212; color: white; text-align: center; padding: 0; margin: 0; }
         
         /* HEADER & BRANDING */
-        header { padding: 50px 20px 30px; background: linear-gradient(to bottom, #1a1a1a, #121212); }
-        .reel-icon { font-size: 3rem; margin-bottom: 10px; display: block; filter: drop-shadow(0 0 10px rgba(229, 9, 20, 0.4)); }
+        header { padding: 40px 20px 30px; background: linear-gradient(to bottom, #1a1a1a, #121212); }
+        .header-img { width: 100%; max-width: 600px; height: auto; border-radius: 15px; margin-bottom: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid #333; }
         h1 { margin: 0; color: #e50914; text-transform: uppercase; letter-spacing: 4px; font-size: 2.8rem; }
         .subtitle { color: #888; margin-top: 10px; font-size: 1.1rem; font-weight: 300; letter-spacing: 1px; }
 
@@ -45,7 +45,7 @@
 <body>
 
     <header>
-        <span class="reel-icon">🎞️</span>
+        <img src="header.jpg" alt="Cinema Header" class="header-img">
         <h1>Oddrey's Movie Ratings</h1>
         <div class="subtitle">Movies watched at the cinema</div>
     </header>
@@ -100,24 +100,24 @@
         let displayedMovies = [];
         let currentIndex = 0;
 
-        // 1. LOAD REVIEWS FIRST (Assuming you kept your Reviews.csv separate)
+        // 1. LOAD REVIEWS
         Papa.parse("Movie List.xlsx - Reviews.csv", {
             download: true, header: false, skipEmptyLines: true,
             complete: function(res) {
                 res.data.forEach(r => { if(r[0]) reviews[r[0].trim().toLowerCase()] = r[1]; });
                 loadMovieData();
             },
-            error: () => loadMovieData() // Continue even if reviews fail
+            error: () => loadMovieData()
         });
 
-        // 2. LOAD MAIN DATA (Only looking at Data.csv now)
+        // 2. LOAD MAIN DATA (Focuses on one file now)
         function loadMovieData() {
             Papa.parse("Movie List.xlsx - Data.csv", {
                 download: true, header: true, skipEmptyLines: true,
                 complete: function(results) {
                     let data = results.data.filter(row => row.Movie);
 
-                    // Sort by Date Descending so latest viewings appear first
+                    // Sort by Date Descending (Newest First)
                     data.sort((a, b) => new Date(b.Date || 0) - new Date(a.Date || 0));
 
                     const uniqueMap = new Map();
@@ -136,7 +136,6 @@
 
                     allMovies = Array.from(uniqueMap.values());
                     
-                    // Populate Year Filter
                     const yrSel = document.getElementById('yearFilter');
                     Array.from(years).sort((a,b) => b-a).forEach(yr => {
                         const opt = document.createElement('option');
@@ -165,7 +164,6 @@
 
             document.getElementById('statsBar').innerText = `${filteredList.length} Unique Movies`;
 
-            // Sorting logic
             if (sortVal === "high") filteredList.sort((a,b) => (b.Rating || 0) - (a.Rating || 0));
             else if (sortVal === "az") filteredList.sort((a,b) => a.Movie.localeCompare(b.Movie));
             else filteredList.sort((a, b) => new Date(b.Date || 0) - new Date(a.Date || 0));
@@ -217,7 +215,7 @@
         }
 
         function renderStat(label, val) {
-            // IGNORE DETAILS IF EMPTY: Check if value is missing, 0, or blank
+            // Hides category if value is empty, 0, or blank
             if(!val || val == 0 || val === "") return "";
             return `<div><div style="display:flex; justify-content:space-between; font-size:0.7rem; color:#888; text-transform:uppercase;"><span>${label}</span><span>${val}</span></div><div class="stat-bar-bg"><div class="stat-bar-fill" style="width:${val}%"></div></div></div>`;
         }
@@ -230,7 +228,6 @@
             document.getElementById('modalScore').innerText = Math.round(m.Rating || 0);
             document.getElementById('modalMeta').innerText = `${studioMap[m.Studio] || 'Other'} • Watched: ${m.Date}`;
             
-            // Generate breakdown stats
             const stats = 
                 renderStat("Story", m.Story) + 
                 renderStat("Character", m.Character) + 
