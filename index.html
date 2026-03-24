@@ -16,7 +16,7 @@
 
         /* CONTROLS */
         .controls { position: sticky; top: 0; background: #1a1a1a; padding: 15px; z-index: 100; border-bottom: 2px solid #e50914; display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; align-items: center; }
-        #statsBar { background: #e50914; padding: 6px 18px; border-radius: 25px; font-size: 0.9rem; color: white; font-weight: bold; }
+        #statsBar { background: #e50914; padding: 6px 18px; border-radius: 25px; font-size: 0.9rem; color: white; font-weight: bold; min-width: 150px; }
         input, select { padding: 10px; border-radius: 6px; border: 1px solid #444; background: #222; color: white; width: 170px; outline: none; }
         
         /* GRID */
@@ -51,7 +51,7 @@
     </header>
 
     <div class="controls">
-        <div id="statsBar">Syncing...</div>
+        <div id="statsBar">Archive Loading...</div>
         <input type="text" id="search" placeholder="Search movies...">
         <select id="yearFilter"><option value="all">All Years</option></select>
         <select id="studioFilter">
@@ -100,7 +100,7 @@
         let displayedMovies = [];
         let currentIndex = 0;
 
-        // 1. LOAD REVIEWS
+        // STEP 1: LOAD REVIEWS
         Papa.parse("Movie List.xlsx - Reviews.csv", {
             download: true, header: false, skipEmptyLines: true,
             complete: function(res) {
@@ -110,25 +110,29 @@
             error: () => loadMovieData()
         });
 
-        // 2. LOAD MAIN DATA (Focuses on one file now)
+        // STEP 2: LOAD MAIN DATA (Strictly one sheet now)
         function loadMovieData() {
             Papa.parse("Movie List.xlsx - Data.csv", {
                 download: true, header: true, skipEmptyLines: true,
                 complete: function(results) {
-                    let data = results.data.filter(row => row.Movie);
+                    let rawData = results.data.filter(row => row.Movie);
 
-                    // Sort by Date Descending (Newest First)
-                    data.sort((a, b) => new Date(b.Date || 0) - new Date(a.Date || 0));
+                    // Ensure most recent entries are at the top before we deduplicate
+                    rawData.sort((a, b) => new Date(b.Date || 0) - new Date(a.Date || 0));
 
                     const uniqueMap = new Map();
                     const years = new Set();
 
-                    data.forEach(row => {
-                        const title = (row.Movie || "").trim();
+                    rawData.forEach(row => {
+                        const title = row.Movie.trim();
                         if (!title) return;
-                        const key = title.toLowerCase();
-                        if (!uniqueMap.has(key)) {
-                            uniqueMap.set(key, row);
+
+                        // Create an "Ultra-Clean Key" to prevent duplicates
+                        // This removes spaces and punctuation so "Inception " and "Inception" match.
+                        const cleanKey = title.toLowerCase().replace(/[^a-z0-9]/g, "");
+
+                        if (!uniqueMap.has(cleanKey)) {
+                            uniqueMap.set(cleanKey, row);
                             const d = new Date(row.Date);
                             if (!isNaN(d.getFullYear())) years.add(d.getFullYear());
                         }
@@ -136,6 +140,7 @@
 
                     allMovies = Array.from(uniqueMap.values());
                     
+                    // Fill the Year Dropdown
                     const yrSel = document.getElementById('yearFilter');
                     Array.from(years).sort((a,b) => b-a).forEach(yr => {
                         const opt = document.createElement('option');
@@ -164,6 +169,7 @@
 
             document.getElementById('statsBar').innerText = `${filteredList.length} Unique Movies`;
 
+            // Sort logic
             if (sortVal === "high") filteredList.sort((a,b) => (b.Rating || 0) - (a.Rating || 0));
             else if (sortVal === "az") filteredList.sort((a,b) => a.Movie.localeCompare(b.Movie));
             else filteredList.sort((a, b) => new Date(b.Date || 0) - new Date(a.Date || 0));
@@ -191,14 +197,14 @@
                         headers: { Authorization: `Bearer ${TMDB_TOKEN}` }
                     });
                     const d = await res.json();
-                    return d.poster_path ? `https://image.tmdb.org/t/p/w500${d.poster_path}` : "https://via.placeholder.com/500x750?text=No+Poster";
+                    return d.poster_path ? `https://image.tmdb.org/p/w500${d.poster_path}` : "https://via.placeholder.com/500x750?text=No+Poster";
                 }
                 let url = `https://api.themoviedb.org/3/search/movie?query=${encodeURIComponent(title)}`;
                 const year = new Date(dateStr).getFullYear();
                 if (!isNaN(year)) url += `&primary_release_year=${year}`;
                 const response = await fetch(url, { headers: { Authorization: `Bearer ${TMDB_TOKEN}` } });
                 const data = await response.json();
-                return data.results?.[0] ? `https://image.tmdb.org/t/p/w500${data.results[0].poster_path}` : "https://via.placeholder.com/500x750?text=No+Poster";
+                return data.results?.[0] ? `https://image.tmdb.org/p/w500${data.results[0].poster_path}` : "https://via.placeholder.com/500x750?text=No+Poster";
             } catch(e) { return "https://via.placeholder.com/500x750?text=Error"; }
         }
 
@@ -215,8 +221,8 @@
         }
 
         function renderStat(label, val) {
-            // Hides category if value is empty, 0, or blank
-            if(!val || val == 0 || val === "") return "";
+            // This is the "Lazy" logic: hide bars if data is missing or zero
+            if(!val || val == 0 || val === "" || val === " ") return "";
             return `<div><div style="display:flex; justify-content:space-between; font-size:0.7rem; color:#888; text-transform:uppercase;"><span>${label}</span><span>${val}</span></div><div class="stat-bar-bg"><div class="stat-bar-fill" style="width:${val}%"></div></div></div>`;
         }
 
@@ -228,6 +234,7 @@
             document.getElementById('modalScore').innerText = Math.round(m.Rating || 0);
             document.getElementById('modalMeta').innerText = `${studioMap[m.Studio] || 'Other'} • Watched: ${m.Date}`;
             
+            // Build the stats list
             const stats = 
                 renderStat("Story", m.Story) + 
                 renderStat("Character", m.Character) + 
