@@ -14,27 +14,25 @@
         h1 { margin: 0; color: #e50914; text-transform: uppercase; letter-spacing: 4px; font-size: 2.5rem; }
         .subtitle { color: #888; margin-top: 10px; font-size: 1.1rem; font-weight: 300; letter-spacing: 1px; }
 
-        /* DEBUG STATUS - Helps us find the problem */
-        #apiStatus { font-size: 0.8rem; padding: 5px; background: #222; color: #555; margin-bottom: 10px; }
-
         /* CONTROLS */
         .controls { position: sticky; top: 0; background: #1a1a1a; padding: 15px; z-index: 100; border-bottom: 2px solid #e50914; display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; align-items: center; }
         #statsBar { background: #222; padding: 6px 18px; border-radius: 25px; font-size: 0.9rem; color: #e50914; font-weight: bold; border: 1px solid #333; }
         input, select { padding: 10px; border-radius: 6px; border: 1px solid #444; background: #222; color: white; width: 165px; outline: none; }
         
-        /* GRID & CARDS */
+        /* GRID */
         .movie-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 20px; padding: 25px; }
         .movie-card { background: #1e1e1e; border-radius: 12px; overflow: hidden; border: 1px solid #333; transition: 0.3s; cursor: pointer; display: flex; flex-direction: column; }
         .movie-card:hover { border-color: #e50914; transform: translateY(-5px); }
         .movie-card img { width: 100%; height: 280px; object-fit: cover; background: #2a2a2a; display: block; }
         
-        /* THE RATING BAR */
+        /* HEAT MAP BAR */
         .rating-bar-container { width: 100%; height: 8px; background: #333; }
-        .rating-bar-fill { height: 100%; transition: width 0.5s; }
+        .rating-bar-fill { height: 100%; transition: width 0.5s ease-in-out; }
 
         .info { padding: 12px; text-align: left; }
-        .score-text { font-weight: bold; font-size: 1.1rem; margin-right: 5px; }
-        h3 { font-size: 0.95rem; margin: 5px 0; height: 2.4em; overflow: hidden; line-height: 1.2; color: #eee; }
+        .score-text { font-weight: bold; font-size: 1.4rem; display: block; margin: 4px 0 2px 0; line-height: 1; }
+        h3 { font-size: 0.95rem; margin: 0; height: 2.4em; overflow: hidden; line-height: 1.2; color: #eee; font-weight: 500; }
+        small { color: #666; text-transform: uppercase; font-weight: bold; font-size: 0.7rem; letter-spacing: 0.5px; }
 
         /* MODAL */
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); justify-content: center; align-items: center; overflow-y: auto; }
@@ -52,8 +50,6 @@
 </head>
 <body>
 
-    <div id="apiStatus">Checking system connection...</div>
-
     <header>
         <img src="header.jpg" alt="Oddrey's Cinema" class="header-img">
         <h1>Oddrey's Movie Ratings</h1>
@@ -61,7 +57,7 @@
     </header>
 
     <div class="controls">
-        <div id="statsBar">Archive Loading...</div>
+        <div id="statsBar">Syncing archive...</div>
         <input type="text" id="search" placeholder="Search movies...">
         <select id="yearFilter"><option value="all">All Years</option></select>
         <select id="studioFilter">
@@ -69,7 +65,7 @@
             <option value="1">Marvel</option><option value="2">DC</option><option value="3">Disney</option>
             <option value="4">Pixar</option><option value="5">Universal</option><option value="6">Dream Works</option>
             <option value="8">Warner Bros</option><option value="10">Paramount</option><option value="12">Sony Pictures</option>
-            <option value="24">A24</option><option value="25">Apple Studios</option>
+            <option value="19">20th Century Studios</option><option value="24">A24</option><option value="25">Apple Studios</option>
         </select>
         <select id="sort">
             <option value="recent">Most Recent</option>
@@ -105,7 +101,17 @@
 
     <script>
         const TMDB_TOKEN = "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI3MzNjZmYyNDFlMzBiNDFiYzdmMTZhZTllYzRkOTdhOSIsIm5iZiI6MTc3NDA2MzY2NC40MDksInN1YiI6IjY5YmUxMDMwZjVkMGNkMmNiODcwODc0MCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.6v1eQGdH2fRMCICnH9sbIoVRFpQ2Xy5fgWwbcEL1hII";
-        const studioMap = { "1":"Marvel", "2":"DC", "3":"Disney", "4":"Pixar", "5":"Universal", "6":"Dream Works", "7":"Illumination", "8":"Warner Bros", "9":"New Line Cinema", "10":"Paramount", "11":"Miramax", "12":"Sony Pictures", "13":"MGM", "14":"Lionsgate", "15":"Focus Features", "16":"Lucas film", "17":"20th Century", "18":"Searchlight", "19":"20th Century Fox / Marvel", "20":"Nickelodeon", "21":"Toei Animation", "22":"Independant", "23":"Columbia Pictures", "24":"A24", "25":"Apple Studios" };
+        
+        // Updated studioMap to remove Marvel from 20th Century
+        const studioMap = { 
+            "1":"Marvel", "2":"DC", "3":"Disney", "4":"Pixar", "5":"Universal", 
+            "6":"Dream Works", "7":"Illumination", "8":"Warner Bros", "9":"New Line Cinema", 
+            "10":"Paramount", "11":"Miramax", "12":"Sony Pictures", "13":"MGM", 
+            "14":"Lionsgate", "15":"Focus Features", "16":"Lucas film", "17":"20th Century", 
+            "18":"Searchlight", "19":"20th Century Studios", "20":"Nickelodeon", 
+            "21":"Toei Animation", "22":"Independant", "23":"Columbia Pictures", 
+            "24":"A24", "25":"Apple Studios" 
+        };
 
         let allMovies = [];
         let reviews = {};
@@ -113,7 +119,6 @@
         let displayedMovies = [];
         let currentIndex = 0;
 
-        // NEW COLOR SCALE (7 Ranges)
         function getRatingColor(score) {
             if (score >= 95) return "#d500f9"; // Purple
             if (score >= 90) return "#00b0ff"; // Blue
@@ -124,24 +129,6 @@
             return "#d50000"; // Red
         }
 
-        // TEST CONNECTION ON LOAD
-        async function testConnection() {
-            try {
-                const res = await fetch("https://api.themoviedb.org/3/authentication", {
-                    headers: { Authorization: `Bearer ${TMDB_TOKEN}` }
-                });
-                if (res.ok) {
-                    document.getElementById('apiStatus').innerHTML = "✅ API Connected | Date: March 24, 2026";
-                } else {
-                    document.getElementById('apiStatus').innerHTML = "❌ API Key Error. Check your TMDB Token.";
-                }
-            } catch(e) {
-                document.getElementById('apiStatus').innerHTML = "❌ Connection Blocked. Are you testing locally? Use GitHub or a Local Server.";
-            }
-        }
-        testConnection();
-
-        // 1. LOAD REVIEWS
         Papa.parse("Movie List.xlsx - Reviews.csv", {
             download: true, header: false, skipEmptyLines: true,
             complete: function(res) {
@@ -151,17 +138,14 @@
             error: () => loadMovieData()
         });
 
-        // 2. LOAD DATA
         function loadMovieData() {
             Papa.parse("Movie List.xlsx - Data.csv", {
                 download: true, header: true, skipEmptyLines: true,
                 complete: function(results) {
                     let data = results.data.filter(row => row.Movie);
                     data.sort((a, b) => new Date(b.Date || 0) - new Date(a.Date || 0));
-
                     const uniqueMap = new Map();
                     const years = new Set();
-
                     data.forEach(row => {
                         const title = row.Movie.trim();
                         if (!title) return;
@@ -172,15 +156,12 @@
                             if (!isNaN(d.getFullYear())) years.add(d.getFullYear());
                         }
                     });
-
                     allMovies = Array.from(uniqueMap.values());
-                    
                     const yrSel = document.getElementById('yearFilter');
                     Array.from(years).sort((a,b) => b-a).forEach(yr => {
                         const opt = document.createElement('option');
                         opt.value = yr; opt.innerText = yr; yrSel.appendChild(opt);
                     });
-
                     applyFilters();
                     setupInfiniteScroll();
                 }
@@ -192,31 +173,25 @@
             const studio = document.getElementById('studioFilter').value;
             const year = document.getElementById('yearFilter').value;
             const sortVal = document.getElementById('sort').value;
-
             filteredList = allMovies.filter(m => {
                 const title = m.Movie.toLowerCase();
                 const mYear = new Date(m.Date).getFullYear().toString();
                 return title.includes(term) && (studio === "all" || m.Studio == studio) && (year === "all" || mYear === year);
             });
-
             document.getElementById('statsBar').innerText = `${filteredList.length} Unique Movies`;
-
             if (sortVal === "high") filteredList.sort((a,b) => (b.Rating || 0) - (a.Rating || 0));
             else if (sortVal === "az") filteredList.sort((a,b) => a.Movie.localeCompare(b.Movie));
             else filteredList.sort((a, b) => new Date(b.Date || 0) - new Date(a.Date || 0));
-
             currentIndex = 0; displayedMovies = []; document.getElementById('container').innerHTML = ""; loadNextBatch();
         }
 
         async function loadNextBatch() {
             const next = filteredList.slice(currentIndex, currentIndex + 12);
             if (next.length === 0) { document.getElementById('sentinel').innerText = "END OF ARCHIVE"; return; }
-            
             const withPosters = await Promise.all(next.map(async (row) => {
                 const poster = await fetchPoster(row.Movie, row.Date, row.tmdb_id);
                 return { ...row, poster };
             }));
-
             displayedMovies = [...displayedMovies, ...withPosters];
             currentIndex += 12; render();
         }
@@ -224,30 +199,22 @@
         async function fetchPoster(title, dateStr, tmdbId) {
             try {
                 const headers = { Authorization: `Bearer ${TMDB_TOKEN}` };
-
-                // A. Manual ID (Priority)
                 if (tmdbId && tmdbId.trim() !== "" && !isNaN(tmdbId)) {
                     const res = await fetch(`https://api.themoviedb.org/3/movie/${tmdbId.trim()}`, { headers });
                     const d = await res.json();
-                    if (d.poster_path) return `https://image.tmdb.org/t/p/w500${d.poster_path}`;
+                    if (d.poster_path) return `https://image.tmdb.org/p/w500${d.poster_path}`;
                 }
-
-                // B. Search (With Fallback)
                 const year = new Date(dateStr).getFullYear();
                 let url = `https://api.themoviedb.org/3/search/movie?query=${encodeURIComponent(title)}`;
                 if (!isNaN(year)) url += `&primary_release_year=${year}`;
-
                 let response = await fetch(url, { headers });
                 let data = await response.json();
-
-                // If search with year failed, try without year
                 if ((!data.results || data.results.length === 0) && !isNaN(year)) {
                     url = `https://api.themoviedb.org/3/search/movie?query=${encodeURIComponent(title)}`;
                     response = await fetch(url, { headers });
                     data = await response.json();
                 }
-
-                return data.results?.[0] ? `https://image.tmdb.org/t/p/w500${data.results[0].poster_path}` : "https://via.placeholder.com/500x750?text=No+Poster";
+                return data.results?.[0] ? `https://image.tmdb.org/p/w500${data.results[0].poster_path}` : "https://via.placeholder.com/500x750?text=No+Poster";
             } catch(e) { return "https://via.placeholder.com/500x750?text=Error"; }
         }
 
@@ -261,7 +228,8 @@
                     <div class="rating-bar-container"><div class="rating-bar-fill" style="width:${score}%; background:${barColor};"></div></div>
                     <div class="info">
                         <small>${studioMap[m.Studio] || 'Other'}</small>
-                        <h3><span class="score-text" style="color:${barColor}">${score}</span> ${m.Movie}</h3>
+                        <span class="score-text" style="color:${barColor}">${score}</span>
+                        <h3>${m.Movie}</h3>
                     </div>
                 </div>`;
             }).join('');
@@ -277,13 +245,11 @@
             const title = m.Movie;
             const score = Math.round(m.Rating || 0);
             const color = getRatingColor(score);
-
             document.getElementById('modalTitle').innerText = title;
             document.getElementById('modalImg').src = m.poster;
             document.getElementById('modalScore').innerText = score;
             document.getElementById('modalScore').style.color = color;
             document.getElementById('modalMeta').innerText = `${studioMap[m.Studio] || 'Other'} • Watched: ${m.Date}`;
-            
             const stats = renderStat("Story", m.Story) + renderStat("Character", m.Character) + renderStat("Visuals", m.Visuals) + renderStat("Performance", m.Performance) + renderStat("Pacing", m.Pacing) + renderStat("Genre", m['Genre Fulfilled']);
             const bSection = document.getElementById('breakdownSection');
             if (stats === "") { bSection.style.display = 'none'; } else { bSection.style.display = 'block'; document.getElementById('modalBreakdown').innerHTML = stats; }
