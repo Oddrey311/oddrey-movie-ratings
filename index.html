@@ -46,7 +46,7 @@
         .detail-bar-fill { height: 100%; border-radius: 3px; }
         .review-text { margin-top: 20px; padding: 15px; background: #222; border-radius: 10px; border-left: 4px solid #e50914; font-style: italic; color: #ddd; }
 
-        #sentinel { padding: 60px; color: #444; }
+        #sentinel { padding: 60px; color: #444; height: 20px; }
     </style>
 </head>
 <body>
@@ -109,6 +109,7 @@
         let filteredList = [];
         let displayedMovies = [];
         let currentIndex = 0;
+        let isLoading = false; // THE LOCK
 
         function getRatingColor(score) {
             if (score >= 95) return "#d500f9";
@@ -167,39 +168,60 @@
             const studio = document.getElementById('studioFilter').value;
             const year = document.getElementById('yearFilter').value;
             const sortVal = document.getElementById('sort').value;
+            
             filteredList = allMovies.filter(m => {
                 const title = m.Movie.toLowerCase();
                 const mYear = new Date(m.Date).getFullYear().toString();
                 return title.includes(term) && (studio === "all" || m.Studio == studio) && (year === "all" || mYear === year);
             });
-            document.getElementById('statsBar').innerText = `${filteredList.length} Unique Movies`;
+
+            // Sorting logic
             if (sortVal === "high") filteredList.sort((a,b) => (b.Rating || 0) - (a.Rating || 0));
             else if (sortVal === "az") filteredList.sort((a,b) => a.Movie.localeCompare(b.Movie));
             else filteredList.sort((a, b) => new Date(b.Date || 0) - new Date(a.Date || 0));
-            currentIndex = 0; displayedMovies = []; document.getElementById('container').innerHTML = ""; loadNextBatch();
+
+            // RESET EVERYTHING
+            currentIndex = 0;
+            displayedMovies = [];
+            document.getElementById('container').innerHTML = "";
+            document.getElementById('statsBar').innerText = `${filteredList.length} Unique Movies`;
+            
+            loadNextBatch(); // Manual trigger for first page
         }
 
         async function loadNextBatch() {
-            const next = filteredList.slice(currentIndex, currentIndex + 12);
-            if (next.length === 0) { document.getElementById('sentinel').innerText = "END OF ARCHIVE"; return; }
-            const withPosters = await Promise.all(next.map(async (row) => {
+            if (isLoading) return; // DON'T OPEN DOOR IF ALREADY FETCHING
+            
+            const nextBatch = filteredList.slice(currentIndex, currentIndex + 12);
+            if (nextBatch.length === 0) {
+                document.getElementById('sentinel').innerText = "END OF ARCHIVE";
+                return;
+            }
+
+            isLoading = true; // LOCK DOOR
+            document.getElementById('sentinel').innerText = "DEVELOPING FILM...";
+
+            const withPosters = await Promise.all(nextBatch.map(async (row) => {
                 const poster = await fetchPoster(row.Movie, row.Date, row.tmdb_id);
                 return { ...row, poster };
             }));
+
             displayedMovies = [...displayedMovies, ...withPosters];
-            currentIndex += 12; render();
+            currentIndex += 12; 
+            render();
+            
+            isLoading = false; // UNLOCK DOOR
+            document.getElementById('sentinel').innerText = "SCROLL FOR MORE";
         }
 
         async function fetchPoster(title, dateStr, tmdbId) {
             try {
                 const headers = { Authorization: `Bearer ${TMDB_TOKEN}` };
-                // A. Manual ID
                 if (tmdbId && tmdbId.toString().trim() !== "") {
                     const res = await fetch(`https://api.themoviedb.org/3/movie/${tmdbId.toString().trim()}`, { headers });
                     const d = await res.json();
                     if (d.poster_path) return `https://image.tmdb.org/t/p/w500${d.poster_path}`;
                 }
-                // B. Search
                 const year = new Date(dateStr).getFullYear();
                 let url = `https://api.themoviedb.org/3/search/movie?query=${encodeURIComponent(title)}`;
                 if (!isNaN(year)) url += `&primary_release_year=${year}`;
@@ -215,6 +237,7 @@
         }
 
         function render() {
+            // Update only the new items to avoid re-rendering the whole page
             document.getElementById('container').innerHTML = displayedMovies.map((m, i) => {
                 const score = Math.round(m.Rating || 0);
                 const barColor = getRatingColor(score);
@@ -257,7 +280,15 @@
 
         function closeModal() { document.getElementById('movieModal').style.display = 'none'; }
         window.onclick = (e) => { if(e.target.className === 'modal') closeModal(); };
-        function setupInfiniteScroll() { new IntersectionObserver((entries) => { if(entries[0].isIntersecting) loadNextBatch(); }, {threshold: 0.1}).observe(document.getElementById('sentinel')); }
+
+        function setupInfiniteScroll() { 
+            const observer = new IntersectionObserver((entries) => { 
+                if(entries[0].isIntersecting && !isLoading) { 
+                    loadNextBatch(); 
+                } 
+            }, {threshold: 0.1});
+            observer.observe(document.getElementById('sentinel')); 
+        }
 
         document.getElementById('search').addEventListener('input', applyFilters);
         document.getElementById('studioFilter').addEventListener('change', applyFilters);
