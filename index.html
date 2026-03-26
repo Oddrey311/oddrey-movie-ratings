@@ -18,12 +18,8 @@
         /* CONTROLS AREA */
         .controls { position: sticky; top: 0; background: #1a1a1a; padding: 15px; z-index: 100; border-bottom: 2px solid #e50914; display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; align-items: center; box-shadow: 0 4px 20px rgba(0,0,0,0.5); }
         #statsBar { background: #222; padding: 6px 15px; border-radius: 20px; font-size: 0.8rem; color: #e50914; font-weight: bold; border: 1px solid #333; margin-bottom: 5px; width: fit-content; }
-        
-        input, select { padding: 12px; border-radius: 8px; border: 1px solid #444; background: #222; color: white; width: 160px; outline: none; font-size: 0.9rem; transition: 0.2s; }
-        
-        /* THE FIX: Specifically making the search bar longer */
+        input, select { padding: 12px; border-radius: 8px; border: 1px solid #444; background: #222; color: white; outline: none; font-size: 0.9rem; transition: 0.2s; }
         #search { width: 280px; }
-        
         input:focus { border-color: #e50914; }
         
         /* GRID SYSTEM */
@@ -32,45 +28,42 @@
         .movie-card:hover { border-color: #e50914; transform: translateY(-8px); box-shadow: 0 12px 30px rgba(0,0,0,0.6); }
         .movie-card img { width: 100%; height: 270px; object-fit: cover; background: #222; display: block; }
         
-        /* THE HEAT MAP BARS */
+        /* HEAT MAP BARS */
         .rating-bar-container { width: 100%; height: 6px; background: #333; }
         .rating-bar-fill { height: 100%; transition: width 0.6s cubic-bezier(0.17, 0.67, 0.83, 0.67); }
 
-        /* MOVIE INFO ON CARD */
         .info { padding: 15px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 4px; }
         .score-text { font-weight: 800; font-size: 1.6rem; line-height: 1; margin-top: 5px; }
         h3 { font-size: 0.95rem; margin: 3px 0; height: 2.4em; overflow: hidden; line-height: 1.2; color: #fff; font-weight: 600; }
         small { color: #888; text-transform: uppercase; font-weight: bold; font-size: 0.6rem; letter-spacing: 1px; }
-        .genre-tag { font-size: 0.65rem; color: #666; font-style: italic; }
 
-        /* MODAL STYLES */
+        /* MODAL */
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.98); justify-content: center; align-items: center; overflow-y: auto; padding-top: 40px; }
         .modal-content { background: #161616; padding: 30px; border-radius: 24px; max-width: 850px; width: 90%; display: flex; flex-direction: row; gap: 35px; position: relative; border: 1px solid #333; text-align: left; margin: auto; }
         .modal-left { flex: 0 0 260px; text-align: center; }
-        .modal-left img { width: 100%; border-radius: 15px; box-shadow: 0 15px 40px rgba(0,0,0,0.8); }
+        .modal-left img { width: 100%; border-radius: 15px; }
         .modal-right { flex: 1; min-width: 280px; }
-        
-        .modal-close { position: absolute; top: -20px; right: -20px; font-size: 26px; cursor: pointer; color: white; background: #e50914; width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 5px 15px rgba(0,0,0,0.5); z-index: 1010; transition: 0.2s; border: 2px solid #fff; }
-        .modal-close:active { transform: scale(0.9); background: #b20710; }
+        .modal-close { position: absolute; top: -20px; right: -20px; font-size: 26px; cursor: pointer; color: white; background: #e50914; width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid #fff; }
+
+        /* NEW MODAL ELEMENTS */
+        .content-rating { background: #333; color: white; padding: 2px 8px; border-radius: 4px; font-weight: bold; font-size: 0.8rem; margin-right: 10px; border: 1px solid #444; }
+        .cast-list { margin-top: 15px; font-size: 0.9rem; color: #aaa; line-height: 1.4; }
+        .cast-label { color: #e50914; font-weight: bold; font-size: 0.75rem; text-transform: uppercase; display: block; margin-bottom: 5px; }
+        .production-logos { display: flex; gap: 15px; margin-top: 20px; align-items: center; flex-wrap: wrap; opacity: 0.7; }
+        .production-logos img { height: 25px; filter: brightness(0) invert(1); }
 
         .detail-bar-bg { background: #333; height: 7px; border-radius: 4px; margin: 6px 0 12px 0; }
         .detail-bar-fill { height: 100%; border-radius: 4px; }
         .review-text { margin-top: 20px; padding: 20px; background: #1f1f1f; border-radius: 12px; border-left: 5px solid #e50914; font-style: italic; color: #ccc; font-size: 1rem; line-height: 1.6; }
 
-        /* MOBILE RESPONSIVENESS */
         @media (max-width: 768px) {
-            h1 { font-size: 1.8rem; }
-            .movie-grid { grid-template-columns: 1fr 1fr; gap: 12px; padding: 12px; }
-            .movie-card img { height: 230px; }
-            .modal-content { flex-direction: column; width: 88%; padding: 25px; margin-top: 20px; }
-            .modal-left { flex: 0 0 auto; width: 100%; margin-bottom: 10px; }
-            .modal-left img { max-width: 220px; }
+            .modal-content { flex-direction: column; width: 88%; padding: 25px; }
+            .modal-left { flex: 0 0 auto; width: 100%; }
+            .modal-left img { max-width: 200px; }
             .modal-close { top: 10px; right: 10px; width: 40px; height: 40px; }
-            input, select { width: 140px; font-size: 0.85rem; }
-            #search { width: 100%; max-width: 320px; } /* Full width on small screens */
+            #search { width: 100%; }
         }
-
-        #sentinel { padding: 80px; color: #444; font-size: 0.9rem; font-weight: bold; letter-spacing: 2px; }
+        #sentinel { padding: 80px; color: #444; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -82,31 +75,10 @@
     </header>
 
     <div class="controls">
-        <div id="statsBar">Syncing archive...</div>
-        
+        <div id="statsBar">Syncing...</div>
         <input type="search" id="search" placeholder="Search title or genre...">
-        
-        <select id="genreFilter">
-            <option value="all">All Genres</option>
-            <option value="Action">Action</option><option value="Adventure">Adventure</option>
-            <option value="Animation">Animation</option><option value="Comedy">Comedy</option>
-            <option value="Crime">Crime</option><option value="Drama">Drama</option>
-            <option value="Family">Family</option><option value="Fantasy">Fantasy</option>
-            <option value="Horror">Horror</option><option value="Mystery">Mystery</option>
-            <option value="Romance">Romance</option><option value="Sci-Fi">Sci-Fi</option>
-            <option value="Thriller">Thriller</option>
-        </select>
-
+        <select id="genreFilter"><option value="all">All Genres</option></select>
         <select id="yearFilter"><option value="all">All Years</option></select>
-        
-        <select id="studioFilter">
-            <option value="all">All Studios</option>
-            <option value="1">Marvel</option><option value="2">DC</option><option value="3">Disney</option>
-            <option value="4">Pixar</option><option value="5">Universal</option><option value="6">Dream Works</option>
-            <option value="8">Warner Bros</option><option value="10">Paramount</option><option value="12">Sony Pictures</option>
-            <option value="19">20th Century Studios</option><option value="24">A24</option><option value="25">Apple Studios</option>
-        </select>
-
         <select id="sort">
             <option value="recent">Most Recent</option>
             <option value="high">Highest Rated</option>
@@ -123,27 +95,32 @@
             <span class="modal-close" onclick="closeModal()">&times;</span>
             <div class="modal-left">
                 <img id="modalImg" src="">
-                <div style="margin-top:20px;">
-                    <span id="modalScore" style="font-size: 4rem; font-weight: 800;"></span>
-                    <div style="color: #666; letter-spacing: 3px; font-size: 0.75rem; margin-top: 5px;">RATING</div>
-                </div>
+                <div style="margin-top:20px;"><span id="modalScore" style="font-size: 4.5rem; font-weight: 800;"></span></div>
             </div>
             <div class="modal-right">
-                <h2 id="modalTitle" style="margin-top:0; font-size: 2.2rem; font-weight: 800;"></h2>
-                <p id="modalMeta" style="color:#888; border-bottom:1px solid #333; padding-bottom:15px; font-size: 1rem;"></p>
-                <div id="breakdownSection">
-                    <strong style="font-size:0.75rem; color:#e50914; text-transform:uppercase; letter-spacing: 1px;">Score Breakdown</strong>
+                <h2 id="modalTitle" style="margin:0;"></h2>
+                <div style="margin-top:5px; margin-bottom:15px;">
+                    <span id="modalCert" class="content-rating"></span>
+                    <span id="modalMeta" style="color:#888; font-size: 0.95rem;"></span>
+                </div>
+                
+                <div id="modalCast" class="cast-list"></div>
+
+                <div id="breakdownSection" style="margin-top:20px;">
+                    <strong style="font-size:0.75rem; color:#e50914; text-transform:uppercase;">Score Breakdown</strong>
                     <div id="modalBreakdown" style="margin-top:10px; display: grid; grid-template-columns: 1fr 1fr; gap: 0 20px;"></div>
                 </div>
                 <div id="modalReview" class="review-text" style="display:none;"></div>
+                
+                <div id="modalProduction" class="production-logos"></div>
             </div>
         </div>
     </div>
 
     <script>
         const TMDB_TOKEN = "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI3MzNjZmYyNDFlMzBiNDFiYzdmMTZhZTllYzRkOTdhOSIsIm5iZiI6MTc3NDA2MzY2NC40MDksInN1YiI6IjY5YmUxMDMwZjVkMGNkMmNiODcwODc0MCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.6v1eQGdH2fRMCICnH9sbIoVRFpQ2Xy5fgWwbcEL1hII";
-        const studioMap = { "1":"Marvel", "2":"DC", "3":"Disney", "4":"Pixar", "5":"Universal", "6":"Dream Works", "7":"Illumination", "8":"Warner Bros", "9":"New Line Cinema", "10":"Paramount", "11":"Miramax", "12":"Sony Pictures", "13":"MGM", "14":"Lionsgate", "15":"Focus Features", "16":"Lucas film", "17":"20th Century", "18":"Searchlight", "19":"20th Century Studios", "20":"Nickelodeon", "21":"Toei Animation", "22":"Independant", "23":"Columbia Pictures", "24":"A24", "25":"Apple Studios" };
-        const genreIdMap = { 28: "Action", 12: "Adventure", 16: "Animation", 35: "Comedy", 80: "Crime", 99: "Documentary", 18: "Drama", 10751: "Family", 14: "Fantasy", 36: "History", 27: "Horror", 10402: "Music", 9648: "Mystery", 10749: "Romance", 878: "Sci-Fi", 10770: "TV Movie", 53: "Thriller", 10752: "War", 37: "Western" };
+        const studioMap = { "1":"Marvel", "2":"DC", "3":"Disney", "4":"Pixar", "5":"Universal", "6":"Dream Works", "8":"Warner Bros", "10":"Paramount", "12":"Sony Pictures", "19":"20th Century Studios", "24":"A24", "25":"Apple Studios" };
+        const genreIdMap = { 28: "Action", 12: "Adventure", 16: "Animation", 35: "Comedy", 80: "Crime", 99: "Documentary", 18: "Drama", 10751: "Family", 14: "Fantasy", 36: "History", 27: "Horror", 10402: "Music", 9648: "Mystery", 10749: "Romance", 878: "Sci-Fi", 53: "Thriller", 10752: "War", 37: "Western" };
 
         let allMovies = [];
         let reviews = {};
@@ -153,14 +130,9 @@
         let isLoading = false;
 
         function getRatingColor(score) {
-            if (score >= 95) return "#d500f9"; 
-            if (score >= 90) return "#00b0ff"; 
-            if (score >= 80) return "#00c853"; 
-            if (score >= 70) return "#ffea00"; 
-            if (score >= 60) return "#ff9100"; 
-            if (score >= 40) return "#ff3d00"; 
-            if (score >= 20) return "#d50000"; 
-            return "#5d4037"; // Abyssal Brown
+            if (score >= 95) return "#d500f9"; if (score >= 90) return "#00b0ff"; if (score >= 80) return "#00c853"; 
+            if (score >= 70) return "#ffea00"; if (score >= 60) return "#ff9100"; if (score >= 40) return "#ff3d00"; 
+            if (score >= 20) return "#d50000"; return "#5d4037";
         }
 
         Papa.parse("Movie List.xlsx - Reviews.csv", {
@@ -192,8 +164,7 @@
                     allMovies = Array.from(uniqueMap.values());
                     const yrSel = document.getElementById('yearFilter');
                     Array.from(years).sort((a,b) => b-a).forEach(yr => {
-                        const opt = document.createElement('option');
-                        opt.value = yr; opt.innerText = yr; yrSel.appendChild(opt);
+                        const opt = document.createElement('option'); opt.value = yr; opt.innerText = yr; yrSel.appendChild(opt);
                     });
                     applyFilters();
                     setupInfiniteScroll();
@@ -203,19 +174,13 @@
 
         function applyFilters() {
             const term = document.getElementById('search').value.toLowerCase();
-            const genre = document.getElementById('genreFilter').value;
-            const studio = document.getElementById('studioFilter').value;
-            const year = document.getElementById('yearFilter').value;
             const sortVal = document.getElementById('sort').value;
+            const year = document.getElementById('yearFilter').value;
 
             filteredList = allMovies.filter(m => {
                 const title = m.Movie.toLowerCase();
                 const mYear = new Date(m.Date).getFullYear().toString();
-                const genreMatch = (genre === "all") || (m.genres && m.genres.includes(genre));
-                
-                return title.includes(term) && genreMatch && 
-                       (studio === "all" || m.Studio == studio) && 
-                       (year === "all" || mYear === year);
+                return title.includes(term) && (year === "all" || mYear === year);
             });
 
             if (sortVal === "high") filteredList.sort((a,b) => (b.Rating || 0) - (a.Rating || 0));
@@ -231,25 +196,18 @@
         async function loadNextBatch() {
             if (isLoading) return;
             const nextBatch = filteredList.slice(currentIndex, currentIndex + 12);
-            if (nextBatch.length === 0) { document.getElementById('sentinel').innerText = "END OF ARCHIVE"; return; }
-
+            if (nextBatch.length === 0) return;
             isLoading = true;
-            document.getElementById('sentinel').innerText = "FETCHING CINEMA DATA...";
-
             const enriched = await Promise.all(nextBatch.map(async (row) => {
-                const extras = await fetchMovieExtras(row.Movie, row.Date, row.tmdb_id);
-                row.genres = extras.genres; 
+                const extras = await fetchBasicExtras(row.Movie, row.Date, row.tmdb_id);
                 return { ...row, ...extras };
             }));
-
             displayedMovies = [...displayedMovies, ...enriched];
-            currentIndex += 12; 
-            render();
+            currentIndex += 12; render();
             isLoading = false;
-            document.getElementById('sentinel').innerText = "SCROLL FOR MORE";
         }
 
-        async function fetchMovieExtras(title, dateStr, tmdbId) {
+        async function fetchBasicExtras(title, dateStr, tmdbId) {
             try {
                 const headers = { Authorization: `Bearer ${TMDB_TOKEN}` };
                 let result = null;
@@ -262,23 +220,65 @@
                     if (!isNaN(year)) url += `&primary_release_year=${year}`;
                     let response = await fetch(url, { headers });
                     let data = await response.json();
-                    if ((!data.results || data.results.length === 0) && !isNaN(year)) {
-                        url = `https://api.themoviedb.org/3/search/movie?query=${encodeURIComponent(title)}`;
-                        response = await fetch(url, { headers });
-                        data = await response.json();
-                    }
                     result = data.results?.[0];
                 }
-
                 if (result) {
-                    const poster = result.poster_path ? `https://image.tmdb.org/t/p/w500${result.poster_path}` : "https://via.placeholder.com/500x750?text=No+Poster";
-                    let genres = "";
-                    if (result.genres) genres = result.genres.map(g => g.name).slice(0, 2).join(", ");
-                    else if (result.genre_ids) genres = result.genre_ids.map(id => genreIdMap[id]).filter(n => n).slice(0, 2).join(", ");
-                    return { poster, genres };
+                    const poster = result.poster_path ? `https://image.tmdb.org/t/p/w500${result.poster_path}` : "https://via.placeholder.com/500x750";
+                    const genres = result.genre_ids ? result.genre_ids.map(id => genreIdMap[id]).filter(n => n).slice(0, 2).join(", ") : "";
+                    return { poster, genres, tmdb_actual_id: result.id };
                 }
-                return { poster: "https://via.placeholder.com/500x750?text=No+Poster", genres: "" };
-            } catch(e) { return { poster: "https://via.placeholder.com/500x750?text=No+Poster", genres: "" }; }
+                return { poster: "https://via.placeholder.com/500x750", genres: "", tmdb_actual_id: null };
+            } catch(e) { return { poster: "https://via.placeholder.com/500x750", genres: "", tmdb_actual_id: null }; }
+        }
+
+        async function openModal(i) {
+            const m = displayedMovies[i];
+            const color = getRatingColor(m.Rating);
+            
+            // Setup Modal Basics
+            document.getElementById('modalTitle').innerText = m.Movie;
+            document.getElementById('modalImg').src = m.poster;
+            document.getElementById('modalScore').innerText = Math.round(m.Rating || 0);
+            document.getElementById('modalScore').style.color = color;
+            document.getElementById('modalMeta').innerText = `Loading details...`;
+            document.getElementById('modalCast').innerHTML = "";
+            document.getElementById('modalProduction').innerHTML = "";
+            document.getElementById('modalCert').innerText = "-";
+            
+            document.getElementById('movieModal').style.display = 'flex';
+
+            // Fetch Deep Details
+            if (m.tmdb_actual_id) {
+                const res = await fetch(`https://api.themoviedb.org/3/movie/${m.tmdb_actual_id}?append_to_response=credits,release_dates`, {
+                    headers: { Authorization: `Bearer ${TMDB_TOKEN}` }
+                });
+                const data = await res.json();
+                
+                // 1. Content Rating (US Certification)
+                const release = data.release_dates.results.find(r => r.iso_3166_1 === "US");
+                const cert = release ? release.release_dates[0].certification : "NR";
+                document.getElementById('modalCert').innerText = cert || "G";
+
+                // 2. Cast (Top 5)
+                const cast = data.credits.cast.slice(0, 5).map(c => c.name).join(", ");
+                document.getElementById('modalCast').innerHTML = `<span class="cast-label">Top Billed Cast</span>${cast}`;
+
+                // 3. Meta update
+                document.getElementById('modalMeta').innerText = `${m.genres ? m.genres + ' • ' : ''}${studioMap[m.Studio] || 'Cinema'} • ${m.Date}`;
+
+                // 4. Production Logos
+                const logos = data.production_companies.filter(c => c.logo_path).slice(0, 3).map(c => 
+                    `<img src="https://image.tmdb.org/t/p/w200${c.logo_path}" title="${c.name}">`
+                ).join("");
+                document.getElementById('modalProduction').innerHTML = logos;
+            }
+
+            const stats = renderStat("Story", m.Story) + renderStat("Character", m.Character) + renderStat("Visuals", m.Visuals) + renderStat("Performance", m.Performance) + renderStat("Pacing", m.Pacing);
+            document.getElementById('modalBreakdown').innerHTML = stats || "No stats available.";
+            
+            const revBox = document.getElementById('modalReview');
+            const revTxt = reviews[m.Movie.trim().toLowerCase()];
+            if(revTxt) { revBox.innerText = `"${revTxt}"`; revBox.style.display = 'block'; } else { revBox.style.display = 'none'; }
         }
 
         function render() {
@@ -292,7 +292,6 @@
                     <div class="info">
                         <small>${studioMap[m.Studio] || 'Other'}</small>
                         <h3>${m.Movie}</h3>
-                        <div class="genre-tag">${m.genres || 'Cinema'}</div>
                         <span class="score-text" style="color:${barColor}">${score}</span>
                     </div>
                 </div>`;
@@ -300,36 +299,14 @@
         }
 
         function renderStat(label, val) {
-            if(!val || val == 0 || val === "" || val === " ") return "";
-            return `<div><div style="display:flex; justify-content:space-between; font-size:0.7rem; color:#888; text-transform:uppercase;"><span>${label}</span><span>${val}</span></div><div class="detail-bar-bg"><div class="detail-bar-fill" style="width:${val}%; background:${getRatingColor(val)}"></div></div></div>`;
-        }
-
-        function openModal(i) {
-            const m = displayedMovies[i];
-            const title = m.Movie;
-            const score = Math.round(m.Rating || 0);
-            const color = getRatingColor(score);
-            document.getElementById('modalTitle').innerText = title;
-            document.getElementById('modalImg').src = m.poster;
-            document.getElementById('modalScore').innerText = score;
-            document.getElementById('modalScore').style.color = color;
-            document.getElementById('modalMeta').innerText = `${m.genres ? m.genres + ' • ' : ''}${studioMap[m.Studio] || 'Other'} • ${m.Date}`;
-            const stats = renderStat("Story", m.Story) + renderStat("Character", m.Character) + renderStat("Visuals", m.Visuals) + renderStat("Performance", m.Performance) + renderStat("Pacing", m.Pacing) + renderStat("Genre", m['Genre Fulfilled']);
-            const bSection = document.getElementById('breakdownSection');
-            if (stats === "") { bSection.style.display = 'none'; } else { bSection.style.display = 'block'; document.getElementById('modalBreakdown').innerHTML = stats; }
-            const revBox = document.getElementById('modalReview');
-            const revTxt = reviews[title.trim().toLowerCase()];
-            if(revTxt) { revBox.innerText = `"${revTxt}"`; revBox.style.display = 'block'; } else { revBox.style.display = 'none'; }
-            document.getElementById('movieModal').style.display = 'flex';
+            if(!val || val == 0) return "";
+            return `<div><div style="display:flex; justify-content:space-between; font-size:0.7rem; color:#888;"><span>${label}</span><span>${val}</span></div><div class="detail-bar-bg"><div class="detail-bar-fill" style="width:${val}%; background:${getRatingColor(val)}"></div></div></div>`;
         }
 
         function closeModal() { document.getElementById('movieModal').style.display = 'none'; }
         window.onclick = (e) => { if(e.target.className === 'modal') closeModal(); };
         function setupInfiniteScroll() { new IntersectionObserver((entries) => { if(entries[0].isIntersecting && !isLoading) loadNextBatch(); }, {threshold: 0.1}).observe(document.getElementById('sentinel')); }
-
         document.getElementById('search').addEventListener('input', applyFilters);
-        document.getElementById('genreFilter').addEventListener('change', applyFilters);
-        document.getElementById('studioFilter').addEventListener('change', applyFilters);
         document.getElementById('yearFilter').addEventListener('change', applyFilters);
         document.getElementById('sort').addEventListener('change', applyFilters);
     </script>
