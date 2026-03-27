@@ -53,7 +53,10 @@
         .content-rating { background: #333; color: white; padding: 2px 8px; border-radius: 4px; font-weight: bold; font-size: 0.8rem; margin-right: 10px; }
         .date-row { font-size: 0.85rem; color: #777; margin: 10px 0; }
         .date-row b { color: #aaa; }
-        .cast-list { margin-top: 15px; font-size: 0.9rem; color: #aaa; }
+        .synopsis { font-size: 0.9rem; color: #ccc; line-height: 1.5; margin: 15px 0; padding-left: 12px; border-left: 3px solid #e50914; }
+        .trailer-btn { display: inline-block; background: #e50914; color: white; padding: 8px 16px; border-radius: 8px; text-decoration: none; font-size: 0.85rem; font-weight: bold; transition: 0.3s; margin-bottom: 15px; }
+        .trailer-btn:hover { background: #b20710; }
+        .cast-list { margin-top: 5px; font-size: 0.9rem; color: #aaa; }
         .production-logos { display: flex; gap: 15px; margin-top: 10px; opacity: 0.6; flex-wrap: wrap; align-items: center; }
         .production-logos img { height: 20px; filter: brightness(0) invert(1); }
         .detail-bar-bg { width: 100%; height: 10px; background: #333; border-radius: 5px; margin-top: 4px; margin-bottom: 15px; overflow: hidden; }
@@ -62,11 +65,10 @@
         /* MOBILE RESPONSIVE FIXES */
         @media (max-width: 768px) {
             .movie-grid { grid-template-columns: 1fr 1fr; }
-            .modal { align-items: flex-start; padding-top: 10px; } /* Prevents tall modals from getting cut off at the top */
+            .modal { align-items: flex-start; padding-top: 10px; } 
             .modal-content { flex-direction: column; width: 88%; padding: 20px; margin-top: 50px; margin-bottom: 40px; }
             .modal-left { width: 100%; flex: auto; }
             #search { width: 100%; }
-            /* Fixed X button so it floats and stays completely out of the address bar's way */
             .modal-close { position: fixed; top: 15px; right: 15px; width: 40px; height: 40px; border-width: 2px; z-index: 9999; box-shadow: 0 4px 10px rgba(0,0,0,0.8); } 
         }
     </style>
@@ -147,6 +149,9 @@
                     <span><b>Watched at Cinema:</b> <span id="modalWatched"></span></span>
                 </div>
 
+                <p id="modalSynopsis" class="synopsis"></p>
+                <a id="modalTrailer" class="trailer-btn" href="#" target="_blank" style="display:none;">Watch Trailer</a>
+
                 <div id="modalCast" class="cast-list"></div>
 
                 <div id="breakdownSection" style="margin-top:25px;">
@@ -222,13 +227,11 @@
                     
                     allMovies = Array.from(uniqueMap.values());
                     
-                    // Populate Year Dropdown
                     const yrSel = document.getElementById('yearFilter');
                     Array.from(years).sort((a,b) => b-a).forEach(yr => {
                         const opt = document.createElement('option'); opt.value = yr; opt.innerText = yr; yrSel.appendChild(opt);
                     });
                     
-                    // Populate Studio Dropdown
                     const studioSel = document.getElementById('studioFilter');
                     Array.from(studios).sort((a,b) => {
                         const nameA = studioMap[a] || a;
@@ -323,20 +326,34 @@
             document.getElementById('modalCert').innerText = "-";
             document.getElementById('modalCast').innerHTML = "";
             document.getElementById('modalProduction').innerHTML = "";
+            document.getElementById('modalSynopsis').innerText = "Loading synopsis...";
+            document.getElementById('modalTrailer').style.display = "none";
             
-            // Set basic info and move the studio text location
             document.getElementById('modalMeta').innerText = `${m.genres || 'Unknown Genre'}`;
             document.getElementById('modalStudioText').innerText = studioMap[m.Studio] ? `Studio: ${studioMap[m.Studio]}` : '';
             
             document.getElementById('movieModal').style.display = 'flex';
 
             if (m.tmdb_actual_id) {
-                const res = await fetch(`https://api.themoviedb.org/3/movie/${m.tmdb_actual_id}?append_to_response=credits,release_dates`, {
+                // ADDED 'videos' to the API request to fetch trailers
+                const res = await fetch(`https://api.themoviedb.org/3/movie/${m.tmdb_actual_id}?append_to_response=credits,release_dates,videos`, {
                     headers: { Authorization: `Bearer ${TMDB_TOKEN}` }
                 });
                 const data = await res.json();
                 
-                // IMPROVED CERTIFICATION SEARCH
+                // POPULATE SYNOPSIS
+                document.getElementById('modalSynopsis').innerText = data.overview || "No synopsis available for this title.";
+
+                // FIND AND POPULATE TRAILER
+                if (data.videos && data.videos.results) {
+                    const trailer = data.videos.results.find(v => v.type === "Trailer" && v.site === "YouTube");
+                    if (trailer) {
+                        const trailerBtn = document.getElementById('modalTrailer');
+                        trailerBtn.href = `https://www.youtube.com/watch?v=${trailer.key}`;
+                        trailerBtn.style.display = 'inline-block';
+                    }
+                }
+
                 const usRelease = data.release_dates.results.find(r => r.iso_3166_1 === "US");
                 let cert = "NR";
                 if (usRelease) {
