@@ -47,23 +47,26 @@
         .modal-content { background: #161616; padding: 30px; border-radius: 24px; max-width: 850px; width: 90%; display: flex; flex-direction: row; gap: 35px; position: relative; border: 1px solid #333; }
         .modal-left { flex: 0 0 260px; text-align: center; }
         .modal-left img { width: 100%; border-radius: 15px; }
-        .modal-close { position: absolute; top: -20px; right: -20px; cursor: pointer; color: white; background: #e50914; width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid #fff; }
+        .modal-close { position: absolute; top: -20px; right: -20px; cursor: pointer; color: white; background: #e50914; width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid #fff; z-index: 10; }
 
         /* MODAL DETAILS */
         .content-rating { background: #333; color: white; padding: 2px 8px; border-radius: 4px; font-weight: bold; font-size: 0.8rem; margin-right: 10px; }
         .date-row { font-size: 0.85rem; color: #777; margin: 10px 0; }
         .date-row b { color: #aaa; }
         .cast-list { margin-top: 15px; font-size: 0.9rem; color: #aaa; }
-        .production-logos { display: flex; gap: 15px; margin-top: 20px; opacity: 0.6; flex-wrap: wrap; }
+        .production-logos { display: flex; gap: 15px; margin-top: 10px; opacity: 0.6; flex-wrap: wrap; align-items: center; }
         .production-logos img { height: 20px; filter: brightness(0) invert(1); }
         .detail-bar-bg { width: 100%; height: 10px; background: #333; border-radius: 5px; margin-top: 4px; margin-bottom: 15px; overflow: hidden; }
         .detail-bar-fill { height: 100%; border-radius: 5px; transition: width 0.6s ease; }
 
+        /* MOBILE RESPONSIVE FIXES */
         @media (max-width: 768px) {
             .movie-grid { grid-template-columns: 1fr 1fr; }
-            .modal-content { flex-direction: column; width: 88%; }
-            .modal-left { width: 100%; }
+            .modal-content { flex-direction: column; width: 88%; padding: 20px; margin-top: 20px; margin-bottom: 40px; }
+            .modal-left { width: 100%; flex: auto; }
             #search { width: 100%; }
+            /* Pulls the close button inside the modal so it isn't blocked by the mobile address bar */
+            .modal-close { top: 10px; right: 10px; width: 36px; height: 36px; border-width: 1px; } 
         }
     </style>
 </head>
@@ -73,7 +76,7 @@
         <img src="header.jpg" alt="Oddrey's Cinema" class="header-img" onclick="showPage('home')">
         <h1>Oddrey's Movie Ratings</h1>
         <nav>
-            <a onclick="showPage('home')" id="nav-home">Archive</a>
+            <a onclick="showPage('home')" id="nav-home">Movie List</a>
             <a onclick="showPage('about')" id="nav-about">About Me</a>
             <a onclick="showPage('contact')" id="nav-contact">Contact</a>
         </nav>
@@ -83,6 +86,7 @@
         <div class="controls">
             <div id="statsBar">Syncing...</div>
             <input type="search" id="search" placeholder="Search title or genre...">
+            <select id="studioFilter"><option value="all">All Studios</option></select>
             <select id="yearFilter"><option value="all">All Years</option></select>
             <select id="sort">
                 <option value="recent">Most Recent</option>
@@ -148,6 +152,7 @@
                     <div id="modalBreakdown" style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px 25px;"></div>
                 </div>
                 
+                <div id="modalStudioText" style="margin-top: 15px; font-weight: bold; color: #ddd; font-size: 0.95rem;"></div>
                 <div id="modalProduction" class="production-logos"></div>
                 
                 <div id="modalReview" class="review-text" style="display:none; margin-top: 20px; font-style: italic; color: #888;"></div>
@@ -157,7 +162,7 @@
 
     <script>
         const TMDB_TOKEN = "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI3MzNjZmYyNDFlMzBiNDFiYzdmMTZhZTllYzRkOTdhOSIsIm5iZiI6MTc3NDA2MzY2NC40MDksInN1YiI6IjY5YmUxMDMwZjVkMGNkMmNiODcwODc0MCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.6v1eQGdH2fRMCICnH9sbIoVRFpQ2Xy5fgWwbcEL1hII";
-        // Updated Studio Map
+        
         const studioMap = { 
             "1": "Marvel", "2": "DC", "3": "Disney", "4": "Pixar", "5": "Universal", 
             "6": "Dream Works", "7": "Illumination", "8": "Warner Bros", "9": "New Line Cinema", 
@@ -166,6 +171,7 @@
             "18": "Searchlight", "19": "20th Century", "20": "Nickelodeon", "21": "Toei Animation", 
             "22": "Independent", "23": "Columbia Pictures", "24": "A24", "25": "Apple Studios" 
         };
+
         const genreIdMap = { 28: "Action", 12: "Adventure", 16: "Animation", 35: "Comedy", 80: "Crime", 18: "Drama", 10751: "Family", 14: "Fantasy", 27: "Horror", 9648: "Mystery", 878: "Sci-Fi", 53: "Thriller" };
 
         let allMovies = [], reviews = {}, filteredList = [], displayedMovies = [], currentIndex = 0, isLoading = false;
@@ -200,6 +206,8 @@
                     data.sort((a, b) => new Date(b.Date || 0) - new Date(a.Date || 0));
                     const uniqueMap = new Map();
                     const years = new Set();
+                    const studios = new Set();
+                    
                     data.forEach(row => {
                         const title = row.Movie.trim();
                         const key = title.toLowerCase().replace(/[^a-z0-9]/g, "");
@@ -207,13 +215,31 @@
                             uniqueMap.set(key, row);
                             const d = new Date(row.Date);
                             if (!isNaN(d.getFullYear())) years.add(d.getFullYear());
+                            if (row.Studio) studios.add(row.Studio.toString().trim());
                         }
                     });
+                    
                     allMovies = Array.from(uniqueMap.values());
+                    
+                    // Populate Year Dropdown
                     const yrSel = document.getElementById('yearFilter');
                     Array.from(years).sort((a,b) => b-a).forEach(yr => {
                         const opt = document.createElement('option'); opt.value = yr; opt.innerText = yr; yrSel.appendChild(opt);
                     });
+                    
+                    // Populate Studio Dropdown
+                    const studioSel = document.getElementById('studioFilter');
+                    Array.from(studios).sort((a,b) => {
+                        const nameA = studioMap[a] || a;
+                        const nameB = studioMap[b] || b;
+                        return nameA.localeCompare(nameB);
+                    }).forEach(st => {
+                        const opt = document.createElement('option'); 
+                        opt.value = st; 
+                        opt.innerText = studioMap[st] || `Other (${st})`; 
+                        studioSel.appendChild(opt);
+                    });
+
                     applyFilters();
                     setupInfiniteScroll();
                 }
@@ -224,11 +250,16 @@
             const term = document.getElementById('search').value.toLowerCase();
             const sortVal = document.getElementById('sort').value;
             const year = document.getElementById('yearFilter').value;
+            const studio = document.getElementById('studioFilter').value;
 
             filteredList = allMovies.filter(m => {
                 const title = m.Movie.toLowerCase();
                 const mYear = new Date(m.Date).getFullYear().toString();
-                return title.includes(term) && (year === "all" || mYear === year);
+                const mStudio = (m.Studio || "").toString().trim();
+                
+                return title.includes(term) && 
+                       (year === "all" || mYear === year) &&
+                       (studio === "all" || mStudio === studio);
             });
 
             if (sortVal === "high") filteredList.sort((a,b) => (b.Rating || 0) - (a.Rating || 0));
@@ -292,6 +323,10 @@
             document.getElementById('modalCast').innerHTML = "";
             document.getElementById('modalProduction').innerHTML = "";
             
+            // Set basic info and move the studio text location
+            document.getElementById('modalMeta').innerText = `${m.genres || 'Unknown Genre'}`;
+            document.getElementById('modalStudioText').innerText = studioMap[m.Studio] ? `Studio: ${studioMap[m.Studio]}` : '';
+            
             document.getElementById('movieModal').style.display = 'flex';
 
             if (m.tmdb_actual_id) {
@@ -312,8 +347,6 @@
 
                 const cast = data.credits.cast.slice(0, 5).map(c => c.name).join(", ");
                 document.getElementById('modalCast').innerHTML = `<b style="color:#e50914; font-size:0.7rem; text-transform:uppercase;">Top Cast</b><br>${cast}`;
-
-                document.getElementById('modalMeta').innerText = `${m.genres ? m.genres + ' • ' : ''}${studioMap[m.Studio] || 'Cinema'}`;
 
                 const logos = data.production_companies.filter(c => c.logo_path).slice(0, 3).map(c => 
                     `<img src="https://image.tmdb.org/t/p/w200${c.logo_path}" title="${c.name}">`
@@ -355,6 +388,7 @@
         function setupInfiniteScroll() { new IntersectionObserver((entries) => { if(entries[0].isIntersecting && !isLoading) loadNextBatch(); }, {threshold: 0.1}).observe(document.getElementById('sentinel')); }
         
         document.getElementById('search').addEventListener('input', applyFilters);
+        document.getElementById('studioFilter').addEventListener('change', applyFilters);
         document.getElementById('yearFilter').addEventListener('change', applyFilters);
         document.getElementById('sort').addEventListener('change', applyFilters);
     </script>
