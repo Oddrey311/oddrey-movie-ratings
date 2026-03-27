@@ -21,11 +21,13 @@
         .page.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* CONTENT CARDS */
+        /* CONTENT CARDS & ABOUT GRID */
         .content-card { background: #1a1a1a; padding: 30px; border-radius: 20px; border: 1px solid #333; line-height: 1.6; margin-bottom: 40px; }
         .content-card h2 { color: #e50914; margin-top: 0; text-transform: uppercase; }
+        .rating-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 20px; }
+        .rating-item { padding: 10px; border-radius: 8px; background: #222; font-size: 0.9rem; border-left: 4px solid #444; }
 
-        /* FIXED: MODAL RATING BARS CSS */
+        /* MODAL RATING BARS CSS */
         .detail-bar-bg { background: #333; height: 10px; border-radius: 5px; width: 100%; margin-top: 4px; margin-bottom: 12px; overflow: hidden; }
         .detail-bar-fill { height: 100%; transition: width 0.8s ease-in-out; }
 
@@ -55,7 +57,7 @@
             .movie-grid { grid-template-columns: 1fr 1fr; }
             .modal-content { flex-direction: column; width: 88%; }
             .modal-left { width: 100%; }
-            #search { width: 100%; }
+            .search { width: 100%; }
         }
     </style>
 </head>
@@ -89,16 +91,30 @@
     <div id="page-about" class="page">
         <div class="content-card">
             <h2>The Person Behind the Ratings</h2>
-            <p>Welcome! This archive is my personal journey through the big screen, tracking everything I've watched at the cinema since 2014.</p>
+            <p>Welcome! I'm a massive cinema enthusiast who believes every movie deserves a fair shake. This archive is my personal journey through the big screen, tracking everything I've watched at the cinema since 2014.</p>
+            
+            <h3 style="color:#eee; margin-top:30px;">My Rating System</h3>
+            <p>I use a weighted 100-point system to keep things objective, but "Enjoyment" always plays a role. Here is how the colors break down:</p>
+            <div class="rating-grid">
+                <div class="rating-item" style="border-color:#d500f9"><b>95-100:</b> Masterpiece. Life-changing cinema.</div>
+                <div class="rating-item" style="border-color:#00b0ff"><b>90-94:</b> Elite. Incredible execution.</div>
+                <div class="rating-item" style="border-color:#00c853"><b>80-89:</b> Great. Highly recommended.</div>
+                <div class="rating-item" style="border-color:#ffea00"><b>70-79:</b> Good. Worth a watch.</div>
+                <div class="rating-item" style="border-color:#ff9100"><b>60-69:</b> Decent. Has some flaws.</div>
+                <div class="rating-item" style="border-color:#ff3d00"><b>40-59:</b> Mediocre. Struggled to engage.</div>
+                <div class="rating-item" style="border-color:#d50000"><b>20-39:</b> Poor. Disappointing.</div>
+                <div class="rating-item" style="border-color:#5d4037"><b>0-19:</b> Abyssal. Hard to sit through.</div>
+            </div>
         </div>
     </div>
 
     <div id="page-contact" class="page">
         <div class="content-card" style="text-align:center;">
             <h2>Get In Touch</h2>
-            <p>Have a movie recommendation? I'd love to hear from you.</p>
+            <p>Have a movie recommendation or want to discuss a rating? I'd love to hear from you.</p>
             <a href="mailto:audreykcollins@comcast.net" style="display:inline-block; margin-top:20px; padding:15px 30px; background:#e50914; color:white; text-decoration:none; border-radius:10px; font-weight:bold; font-size:1.1rem;">Send Me an Email</a>
             <p style="margin-top:20px; color:#777;">audreykcollins@comcast.net</p>
+            <p style="margin-top:10px; color:#666; font-size:0.9rem;">I'll try to get back to you as soon as I've finished my popcorn!</p>
         </div>
     </div>
 
@@ -122,7 +138,6 @@
     <script>
         const TMDB_TOKEN = "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI3MzNjZmYyNDFlMzBiNDFiYzdmMTZhZTllYzRkOTdhOSIsIm5iZiI6MTc3NDA2MzY2NC40MDksInN1YiI6IjY5YmUxMDMwZjVkMGNkMmNiODcwODc0MCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.6v1eQGdH2fRMCICnH9sbIoVRFpQ2Xy5fgWwbcEL1hII";
         
-        // FIXED STUDIO LIST
         const studioMap = { 
             "1":"Marvel", "2":"DC", "3":"Disney", "4":"Pixar", "5":"Universal", 
             "6":"Dream Works", "7":"Illumination", "8":"Warner Bros", "9":"New Line Cinema", 
@@ -144,9 +159,14 @@
         }
 
         function getRatingColor(score) {
-            if (score >= 95) return "#d500f9"; if (score >= 90) return "#00b0ff"; if (score >= 80) return "#00c853"; 
-            if (score >= 70) return "#ffea00"; if (score >= 60) return "#ff9100"; if (score >= 40) return "#ff3d00"; 
-            return "#d50000";
+            if (score >= 95) return "#d500f9"; 
+            if (score >= 90) return "#00b0ff"; 
+            if (score >= 80) return "#00c853"; 
+            if (score >= 70) return "#ffea00"; 
+            if (score >= 60) return "#ff9100"; 
+            if (score >= 40) return "#ff3d00"; 
+            if (score >= 20) return "#d50000"; 
+            return "#5d4037";
         }
 
         Papa.parse("Movie List.xlsx - Reviews.csv", {
@@ -221,7 +241,6 @@
             document.getElementById('movieModal').style.display = 'flex';
         }
 
-        // FIXED RATING BARS LOGIC
         function renderStat(label, val) {
             if(!val || val == 0) return "";
             return `<div>
