@@ -7,88 +7,119 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <style>
         /* BASE & THEME */
-        body { font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background: #0f0f0f; color: white; text-align: center; padding: 0; margin: 0; -webkit-font-smoothing: antialiased; }
+        body { font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background: #0f0f0f; color: white; text-align: center; padding: 0; margin: 0; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
         
-        /* HEADER */
-        header { padding: 40px 20px 30px; background: linear-gradient(to bottom, #1a1a1a, #0f0f0f); }
-        .header-img { width: 100%; max-width: 450px; height: auto; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.8); border: 1px solid #333; }
-        h1 { margin: 0; color: #e50914; text-transform: uppercase; letter-spacing: 4px; font-size: 2.2rem; }
-        .subtitle { color: #888; margin-top: 10px; font-size: 1rem; font-weight: 300; letter-spacing: 1px; }
+        /* HEADER & NAVIGATION */
+        header { padding: 40px 20px 20px; background: linear-gradient(to bottom, #1a1a1a, #0f0f0f); }
+        .header-img { width: 100%; max-width: 450px; height: auto; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.8); border: 1px solid #333; cursor: pointer; }
+        nav { margin-bottom: 20px; display: flex; justify-content: center; gap: 25px; }
+        nav a { color: #888; text-decoration: none; text-transform: uppercase; font-size: 0.85rem; font-weight: bold; letter-spacing: 2px; transition: 0.3s; cursor: pointer; }
+        nav a:hover, nav a.active { color: #e50914; }
 
-        /* CONTROLS AREA */
-        .controls { position: sticky; top: 0; background: #1a1a1a; padding: 15px; z-index: 100; border-bottom: 2px solid #e50914; display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; align-items: center; box-shadow: 0 4px 20px rgba(0,0,0,0.5); }
-        #statsBar { background: #222; padding: 6px 15px; border-radius: 20px; font-size: 0.8rem; color: #e50914; font-weight: bold; border: 1px solid #333; margin-bottom: 5px; width: fit-content; }
-        input, select { padding: 12px; border-radius: 8px; border: 1px solid #444; background: #222; color: white; outline: none; font-size: 0.9rem; transition: 0.2s; }
+        /* PAGE SECTIONS */
+        .page { display: none; padding: 20px; max-width: 1000px; margin: 0 auto; text-align: left; animation: fadeIn 0.4s ease; }
+        .page.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* ABOUT & CONTACT CONTENT */
+        .content-card { background: #1a1a1a; padding: 30px; border-radius: 20px; border: 1px solid #333; line-height: 1.6; margin-bottom: 40px; }
+        .content-card h2 { color: #e50914; margin-top: 0; text-transform: uppercase; }
+        .rating-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 20px; }
+        .rating-item { padding: 10px; border-radius: 8px; background: #222; font-size: 0.9rem; border-left: 4px solid #444; }
+
+        /* CONTROLS */
+        .controls { position: sticky; top: 0; background: #1a1a1a; padding: 15px; z-index: 100; border-bottom: 2px solid #e50914; display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; align-items: center; }
         #search { width: 280px; }
-        input:focus { border-color: #e50914; }
+        input, select { padding: 12px; border-radius: 8px; border: 1px solid #444; background: #222; color: white; outline: none; font-size: 0.9rem; }
         
-        /* GRID SYSTEM */
-        .movie-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 18px; padding: 20px; }
-        .movie-card { background: #1a1a1a; border-radius: 12px; overflow: hidden; border: 1px solid #222; transition: 0.3s; cursor: pointer; display: flex; flex-direction: column; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
-        .movie-card:hover { border-color: #e50914; transform: translateY(-8px); box-shadow: 0 12px 30px rgba(0,0,0,0.6); }
-        .movie-card img { width: 100%; height: 270px; object-fit: cover; background: #222; display: block; }
-        
-        /* HEAT MAP BARS */
+        /* GRID & CARDS */
+        .movie-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 18px; }
+        .movie-card { background: #1a1a1a; border-radius: 12px; overflow: hidden; border: 1px solid #222; transition: 0.3s; cursor: pointer; display: flex; flex-direction: column; }
+        .movie-card:hover { border-color: #e50914; transform: translateY(-8px); }
+        .movie-card img { width: 100%; height: 270px; object-fit: cover; }
         .rating-bar-container { width: 100%; height: 6px; background: #333; }
-        .rating-bar-fill { height: 100%; transition: width 0.6s cubic-bezier(0.17, 0.67, 0.83, 0.67); }
-
-        .info { padding: 15px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 4px; }
-        .score-text { font-weight: 800; font-size: 1.6rem; line-height: 1; margin-top: 5px; }
-        h3 { font-size: 0.95rem; margin: 3px 0; height: 2.4em; overflow: hidden; line-height: 1.2; color: #fff; font-weight: 600; }
-        small { color: #888; text-transform: uppercase; font-weight: bold; font-size: 0.6rem; letter-spacing: 1px; }
+        .rating-bar-fill { height: 100%; transition: width 0.6s ease; }
+        .info { padding: 15px; text-align: center; }
+        .score-text { font-weight: 800; font-size: 1.6rem; display: block; margin-top: 5px; }
 
         /* MODAL */
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.98); justify-content: center; align-items: center; overflow-y: auto; padding-top: 40px; }
-        .modal-content { background: #161616; padding: 30px; border-radius: 24px; max-width: 850px; width: 90%; display: flex; flex-direction: row; gap: 35px; position: relative; border: 1px solid #333; text-align: left; margin: auto; }
+        .modal-content { background: #161616; padding: 30px; border-radius: 24px; max-width: 850px; width: 90%; display: flex; flex-direction: row; gap: 35px; position: relative; border: 1px solid #333; }
         .modal-left { flex: 0 0 260px; text-align: center; }
         .modal-left img { width: 100%; border-radius: 15px; }
-        .modal-right { flex: 1; min-width: 280px; }
-        .modal-close { position: absolute; top: -20px; right: -20px; font-size: 26px; cursor: pointer; color: white; background: #e50914; width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid #fff; }
+        .modal-close { position: absolute; top: -20px; right: -20px; cursor: pointer; color: white; background: #e50914; width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid #fff; }
 
-        /* NEW MODAL ELEMENTS */
-        .content-rating { background: #333; color: white; padding: 2px 8px; border-radius: 4px; font-weight: bold; font-size: 0.8rem; margin-right: 10px; border: 1px solid #444; }
-        .cast-list { margin-top: 15px; font-size: 0.9rem; color: #aaa; line-height: 1.4; }
-        .cast-label { color: #e50914; font-weight: bold; font-size: 0.75rem; text-transform: uppercase; display: block; margin-bottom: 5px; }
-        .production-logos { display: flex; gap: 15px; margin-top: 20px; align-items: center; flex-wrap: wrap; opacity: 0.7; }
-        .production-logos img { height: 25px; filter: brightness(0) invert(1); }
-
-        .detail-bar-bg { background: #333; height: 7px; border-radius: 4px; margin: 6px 0 12px 0; }
-        .detail-bar-fill { height: 100%; border-radius: 4px; }
-        .review-text { margin-top: 20px; padding: 20px; background: #1f1f1f; border-radius: 12px; border-left: 5px solid #e50914; font-style: italic; color: #ccc; font-size: 1rem; line-height: 1.6; }
+        /* MODAL DETAILS */
+        .content-rating { background: #333; color: white; padding: 2px 8px; border-radius: 4px; font-weight: bold; font-size: 0.8rem; margin-right: 10px; }
+        .date-row { font-size: 0.85rem; color: #777; margin: 10px 0; }
+        .date-row b { color: #aaa; }
+        .cast-list { margin-top: 15px; font-size: 0.9rem; color: #aaa; }
+        .production-logos { display: flex; gap: 15px; margin-top: 20px; opacity: 0.6; flex-wrap: wrap; }
+        .production-logos img { height: 20px; filter: brightness(0) invert(1); }
 
         @media (max-width: 768px) {
-            .modal-content { flex-direction: column; width: 88%; padding: 25px; }
-            .modal-left { flex: 0 0 auto; width: 100%; }
-            .modal-left img { max-width: 200px; }
-            .modal-close { top: 10px; right: 10px; width: 40px; height: 40px; }
+            .movie-grid { grid-template-columns: 1fr 1fr; }
+            .modal-content { flex-direction: column; width: 88%; }
+            .modal-left { width: 100%; }
             #search { width: 100%; }
         }
-        #sentinel { padding: 80px; color: #444; font-weight: bold; }
     </style>
 </head>
 <body>
 
     <header>
-        <img src="header.jpg" alt="Oddrey's Cinema" class="header-img">
+        <img src="header.jpg" alt="Oddrey's Cinema" class="header-img" onclick="showPage('home')">
         <h1>Oddrey's Movie Ratings</h1>
-        <div class="subtitle">Movies watched at the cinema</div>
+        <nav>
+            <a onclick="showPage('home')" id="nav-home">Archive</a>
+            <a onclick="showPage('about')" id="nav-about">About Me</a>
+            <a onclick="showPage('contact')" id="nav-contact">Contact</a>
+        </nav>
     </header>
 
-    <div class="controls">
-        <div id="statsBar">Syncing...</div>
-        <input type="search" id="search" placeholder="Search title or genre...">
-        <select id="genreFilter"><option value="all">All Genres</option></select>
-        <select id="yearFilter"><option value="all">All Years</option></select>
-        <select id="sort">
-            <option value="recent">Most Recent</option>
-            <option value="high">Highest Rated</option>
-            <option value="worst">Worst Rated</option>
-            <option value="az">A-Z</option>
-        </select>
+    <div id="page-home" class="page active">
+        <div class="controls">
+            <div id="statsBar">Syncing...</div>
+            <input type="search" id="search" placeholder="Search title or genre...">
+            <select id="yearFilter"><option value="all">All Years</option></select>
+            <select id="sort">
+                <option value="recent">Most Recent</option>
+                <option value="high">Highest Rated</option>
+                <option value="worst">Worst Rated</option>
+            </select>
+        </div>
+        <div id="container" class="movie-grid"></div>
+        <div id="sentinel" style="padding:50px; color:#444;">SCROLL FOR MORE</div>
     </div>
 
-    <div id="container" class="movie-grid"></div>
-    <div id="sentinel">LOADING ARCHIVE</div>
+    <div id="page-about" class="page">
+        <div class="content-card">
+            <h2>The Person Behind the Ratings</h2>
+            <p>Welcome! I'm a massive cinema enthusiast who believes every movie deserves a fair shake. This archive is my personal journey through the big screen, tracking everything I've watched at the cinema since 2014.</p>
+            
+            <h3 style="color:#eee; margin-top:30px;">My Rating System</h3>
+            <p>I use a weighted 100-point system to keep things objective, but "Enjoyment" always plays a role. Here is how the colors break down:</p>
+            <div class="rating-grid">
+                <div class="rating-item" style="border-color:#d500f9"><b>95-100:</b> Masterpiece. Life-changing cinema.</div>
+                <div class="rating-item" style="border-color:#00b0ff"><b>90-94:</b> Elite. Incredible execution.</div>
+                <div class="rating-item" style="border-color:#00c853"><b>80-89:</b> Great. Highly recommended.</div>
+                <div class="rating-item" style="border-color:#ffea00"><b>70-79:</b> Good. Worth a watch.</div>
+                <div class="rating-item" style="border-color:#ff9100"><b>60-69:</b> Decent. Has some flaws.</div>
+                <div class="rating-item" style="border-color:#ff3d00"><b>40-59:</b> Mediocre. Struggled to engage.</div>
+                <div class="rating-item" style="border-color:#d50000"><b>20-39:</b> Poor. Disappointing.</div>
+                <div class="rating-item" style="border-color:#5d4037"><b>0-19:</b> Abyssal. Hard to sit through.</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="page-contact" class="page">
+        <div class="content-card" style="text-align:center;">
+            <h2>Get In Touch</h2>
+            <p>Have a movie recommendation or want to discuss a rating? I'd love to hear from you.</p>
+            <a href="mailto:audreykcollins@comcast.net" style="display:inline-block; margin-top:20px; padding:15px 30px; background:#e50914; color:white; text-decoration:none; border-radius:10px; font-weight:bold; font-size:1.1rem;">Send Me an Email</a>
+            <p style="margin-top:30px; color:#666; font-size:0.9rem;">I'll try to get back to you as soon as I've finished my popcorn!</p>
+        </div>
+    </div>
 
     <div id="movieModal" class="modal">
         <div class="modal-content">
@@ -99,19 +130,22 @@
             </div>
             <div class="modal-right">
                 <h2 id="modalTitle" style="margin:0;"></h2>
-                <div style="margin-top:5px; margin-bottom:15px;">
+                <div style="margin-top:8px;">
                     <span id="modalCert" class="content-rating"></span>
                     <span id="modalMeta" style="color:#888; font-size: 0.95rem;"></span>
                 </div>
                 
+                <div class="date-row">
+                    <span><b>Released:</b> <span id="modalRelease"></span></span><br>
+                    <span><b>Watched at Cinema:</b> <span id="modalWatched"></span></span>
+                </div>
+
                 <div id="modalCast" class="cast-list"></div>
 
                 <div id="breakdownSection" style="margin-top:20px;">
-                    <strong style="font-size:0.75rem; color:#e50914; text-transform:uppercase;">Score Breakdown</strong>
-                    <div id="modalBreakdown" style="margin-top:10px; display: grid; grid-template-columns: 1fr 1fr; gap: 0 20px;"></div>
+                    <div id="modalBreakdown" style="display: grid; grid-template-columns: 1fr 1fr; gap: 0 20px;"></div>
                 </div>
                 <div id="modalReview" class="review-text" style="display:none;"></div>
-                
                 <div id="modalProduction" class="production-logos"></div>
             </div>
         </div>
@@ -120,14 +154,17 @@
     <script>
         const TMDB_TOKEN = "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI3MzNjZmYyNDFlMzBiNDFiYzdmMTZhZTllYzRkOTdhOSIsIm5iZiI6MTc3NDA2MzY2NC40MDksInN1YiI6IjY5YmUxMDMwZjVkMGNkMmNiODcwODc0MCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.6v1eQGdH2fRMCICnH9sbIoVRFpQ2Xy5fgWwbcEL1hII";
         const studioMap = { "1":"Marvel", "2":"DC", "3":"Disney", "4":"Pixar", "5":"Universal", "6":"Dream Works", "8":"Warner Bros", "10":"Paramount", "12":"Sony Pictures", "19":"20th Century Studios", "24":"A24", "25":"Apple Studios" };
-        const genreIdMap = { 28: "Action", 12: "Adventure", 16: "Animation", 35: "Comedy", 80: "Crime", 99: "Documentary", 18: "Drama", 10751: "Family", 14: "Fantasy", 36: "History", 27: "Horror", 10402: "Music", 9648: "Mystery", 10749: "Romance", 878: "Sci-Fi", 53: "Thriller", 10752: "War", 37: "Western" };
+        const genreIdMap = { 28: "Action", 12: "Adventure", 16: "Animation", 35: "Comedy", 80: "Crime", 18: "Drama", 10751: "Family", 14: "Fantasy", 27: "Horror", 9648: "Mystery", 878: "Sci-Fi", 53: "Thriller" };
 
-        let allMovies = [];
-        let reviews = {};
-        let filteredList = [];
-        let displayedMovies = [];
-        let currentIndex = 0;
-        let isLoading = false;
+        let allMovies = [], reviews = {}, filteredList = [], displayedMovies = [], currentIndex = 0, isLoading = false;
+
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
+            document.getElementById('page-' + pageId).classList.add('active');
+            document.getElementById('nav-' + pageId).classList.add('active');
+            window.scrollTo(0,0);
+        }
 
         function getRatingColor(score) {
             if (score >= 95) return "#d500f9"; if (score >= 90) return "#00b0ff"; if (score >= 80) return "#00c853"; 
@@ -140,8 +177,7 @@
             complete: function(res) {
                 res.data.forEach(r => { if(r[0]) reviews[r[0].trim().toLowerCase()] = r[1]; });
                 loadMovieData();
-            },
-            error: () => loadMovieData()
+            }
         });
 
         function loadMovieData() {
@@ -185,7 +221,6 @@
 
             if (sortVal === "high") filteredList.sort((a,b) => (b.Rating || 0) - (a.Rating || 0));
             else if (sortVal === "worst") filteredList.sort((a,b) => (a.Rating || 0) - (b.Rating || 0));
-            else if (sortVal === "az") filteredList.sort((a,b) => a.Movie.localeCompare(b.Movie));
             else filteredList.sort((a, b) => new Date(b.Date || 0) - new Date(a.Date || 0));
 
             currentIndex = 0; displayedMovies = []; document.getElementById('container').innerHTML = "";
@@ -235,46 +270,46 @@
             const m = displayedMovies[i];
             const color = getRatingColor(m.Rating);
             
-            // Setup Modal Basics
             document.getElementById('modalTitle').innerText = m.Movie;
             document.getElementById('modalImg').src = m.poster;
             document.getElementById('modalScore').innerText = Math.round(m.Rating || 0);
             document.getElementById('modalScore').style.color = color;
-            document.getElementById('modalMeta').innerText = `Loading details...`;
+            document.getElementById('modalWatched').innerText = m.Date;
+            document.getElementById('modalRelease').innerText = "Loading...";
+            document.getElementById('modalCert').innerText = "-";
             document.getElementById('modalCast').innerHTML = "";
             document.getElementById('modalProduction').innerHTML = "";
-            document.getElementById('modalCert').innerText = "-";
             
             document.getElementById('movieModal').style.display = 'flex';
 
-            // Fetch Deep Details
             if (m.tmdb_actual_id) {
                 const res = await fetch(`https://api.themoviedb.org/3/movie/${m.tmdb_actual_id}?append_to_response=credits,release_dates`, {
                     headers: { Authorization: `Bearer ${TMDB_TOKEN}` }
                 });
                 const data = await res.json();
                 
-                // 1. Content Rating (US Certification)
-                const release = data.release_dates.results.find(r => r.iso_3166_1 === "US");
-                const cert = release ? release.release_dates[0].certification : "NR";
+                // IMPROVED CERTIFICATION SEARCH
+                const usRelease = data.release_dates.results.find(r => r.iso_3166_1 === "US");
+                let cert = "NR";
+                if (usRelease) {
+                    const theatrical = usRelease.release_dates.find(rd => rd.certification !== "");
+                    cert = theatrical ? theatrical.certification : usRelease.release_dates[0].certification;
+                }
                 document.getElementById('modalCert').innerText = cert || "G";
+                document.getElementById('modalRelease').innerText = data.release_date || "Unknown";
 
-                // 2. Cast (Top 5)
                 const cast = data.credits.cast.slice(0, 5).map(c => c.name).join(", ");
-                document.getElementById('modalCast').innerHTML = `<span class="cast-label">Top Billed Cast</span>${cast}`;
+                document.getElementById('modalCast').innerHTML = `<b style="color:#e50914; font-size:0.7rem; text-transform:uppercase;">Top Cast</b><br>${cast}`;
 
-                // 3. Meta update
-                document.getElementById('modalMeta').innerText = `${m.genres ? m.genres + ' • ' : ''}${studioMap[m.Studio] || 'Cinema'} • ${m.Date}`;
+                document.getElementById('modalMeta').innerText = `${m.genres ? m.genres + ' • ' : ''}${studioMap[m.Studio] || 'Cinema'}`;
 
-                // 4. Production Logos
                 const logos = data.production_companies.filter(c => c.logo_path).slice(0, 3).map(c => 
                     `<img src="https://image.tmdb.org/t/p/w200${c.logo_path}" title="${c.name}">`
                 ).join("");
                 document.getElementById('modalProduction').innerHTML = logos;
             }
 
-            const stats = renderStat("Story", m.Story) + renderStat("Character", m.Character) + renderStat("Visuals", m.Visuals) + renderStat("Performance", m.Performance) + renderStat("Pacing", m.Pacing);
-            document.getElementById('modalBreakdown').innerHTML = stats || "No stats available.";
+            document.getElementById('modalBreakdown').innerHTML = renderStat("Story", m.Story) + renderStat("Character", m.Character) + renderStat("Visuals", m.Visuals) + renderStat("Performance", m.Performance) + renderStat("Pacing", m.Pacing);
             
             const revBox = document.getElementById('modalReview');
             const revTxt = reviews[m.Movie.trim().toLowerCase()];
@@ -306,6 +341,7 @@
         function closeModal() { document.getElementById('movieModal').style.display = 'none'; }
         window.onclick = (e) => { if(e.target.className === 'modal') closeModal(); };
         function setupInfiniteScroll() { new IntersectionObserver((entries) => { if(entries[0].isIntersecting && !isLoading) loadNextBatch(); }, {threshold: 0.1}).observe(document.getElementById('sentinel')); }
+        
         document.getElementById('search').addEventListener('input', applyFilters);
         document.getElementById('yearFilter').addEventListener('change', applyFilters);
         document.getElementById('sort').addEventListener('change', applyFilters);
