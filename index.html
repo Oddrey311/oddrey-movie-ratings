@@ -21,11 +21,13 @@
         .page.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* ABOUT & CONTACT CONTENT */
+        /* CONTENT CARDS */
         .content-card { background: #1a1a1a; padding: 30px; border-radius: 20px; border: 1px solid #333; line-height: 1.6; margin-bottom: 40px; }
         .content-card h2 { color: #e50914; margin-top: 0; text-transform: uppercase; }
-        .rating-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 20px; }
-        .rating-item { padding: 10px; border-radius: 8px; background: #222; font-size: 0.9rem; border-left: 4px solid #444; }
+
+        /* FIXED: MODAL RATING BARS CSS */
+        .detail-bar-bg { background: #333; height: 10px; border-radius: 5px; width: 100%; margin-top: 4px; margin-bottom: 12px; overflow: hidden; }
+        .detail-bar-fill { height: 100%; transition: width 0.8s ease-in-out; }
 
         /* CONTROLS */
         .controls { position: sticky; top: 0; background: #1a1a1a; padding: 15px; z-index: 100; border-bottom: 2px solid #e50914; display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; align-items: center; }
@@ -49,14 +51,6 @@
         .modal-left img { width: 100%; border-radius: 15px; }
         .modal-close { position: absolute; top: -20px; right: -20px; cursor: pointer; color: white; background: #e50914; width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid #fff; }
 
-        /* MODAL DETAILS */
-        .content-rating { background: #333; color: white; padding: 2px 8px; border-radius: 4px; font-weight: bold; font-size: 0.8rem; margin-right: 10px; }
-        .date-row { font-size: 0.85rem; color: #777; margin: 10px 0; }
-        .date-row b { color: #aaa; }
-        .cast-list { margin-top: 15px; font-size: 0.9rem; color: #aaa; }
-        .production-logos { display: flex; gap: 15px; margin-top: 20px; opacity: 0.6; flex-wrap: wrap; }
-        .production-logos img { height: 20px; filter: brightness(0) invert(1); }
-
         @media (max-width: 768px) {
             .movie-grid { grid-template-columns: 1fr 1fr; }
             .modal-content { flex-direction: column; width: 88%; }
@@ -71,7 +65,7 @@
         <img src="header.jpg" alt="Oddrey's Cinema" class="header-img" onclick="showPage('home')">
         <h1>Oddrey's Movie Ratings</h1>
         <nav>
-            <a onclick="showPage('home')" id="nav-home">Archive</a>
+            <a onclick="showPage('home')" id="nav-home">Movie List</a>
             <a onclick="showPage('about')" id="nav-about">About Me</a>
             <a onclick="showPage('contact')" id="nav-contact">Contact</a>
         </nav>
@@ -95,29 +89,16 @@
     <div id="page-about" class="page">
         <div class="content-card">
             <h2>The Person Behind the Ratings</h2>
-            <p>Welcome! I'm a massive cinema enthusiast who believes every movie deserves a fair shake. This archive is my personal journey through the big screen, tracking everything I've watched at the cinema since 2014.</p>
-            
-            <h3 style="color:#eee; margin-top:30px;">My Rating System</h3>
-            <p>I use a weighted 100-point system to keep things objective, but "Enjoyment" always plays a role. Here is how the colors break down:</p>
-            <div class="rating-grid">
-                <div class="rating-item" style="border-color:#d500f9"><b>95-100:</b> Masterpiece. Life-changing cinema.</div>
-                <div class="rating-item" style="border-color:#00b0ff"><b>90-94:</b> Elite. Incredible execution.</div>
-                <div class="rating-item" style="border-color:#00c853"><b>80-89:</b> Great. Highly recommended.</div>
-                <div class="rating-item" style="border-color:#ffea00"><b>70-79:</b> Good. Worth a watch.</div>
-                <div class="rating-item" style="border-color:#ff9100"><b>60-69:</b> Decent. Has some flaws.</div>
-                <div class="rating-item" style="border-color:#ff3d00"><b>40-59:</b> Mediocre. Struggled to engage.</div>
-                <div class="rating-item" style="border-color:#d50000"><b>20-39:</b> Poor. Disappointing.</div>
-                <div class="rating-item" style="border-color:#5d4037"><b>0-19:</b> Abyssal. Hard to sit through.</div>
-            </div>
+            <p>Welcome! This archive is my personal journey through the big screen, tracking everything I've watched at the cinema since 2014.</p>
         </div>
     </div>
 
     <div id="page-contact" class="page">
         <div class="content-card" style="text-align:center;">
             <h2>Get In Touch</h2>
-            <p>Have a movie recommendation or want to discuss a rating? I'd love to hear from you.</p>
+            <p>Have a movie recommendation? I'd love to hear from you.</p>
             <a href="mailto:audreykcollins@comcast.net" style="display:inline-block; margin-top:20px; padding:15px 30px; background:#e50914; color:white; text-decoration:none; border-radius:10px; font-weight:bold; font-size:1.1rem;">Send Me an Email</a>
-            <p style="margin-top:30px; color:#666; font-size:0.9rem;">I'll try to get back to you as soon as I've finished my popcorn!</p>
+            <p style="margin-top:20px; color:#777;">audreykcollins@comcast.net</p>
         </div>
     </div>
 
@@ -130,46 +111,42 @@
             </div>
             <div class="modal-right">
                 <h2 id="modalTitle" style="margin:0;"></h2>
-                <div style="margin-top:8px;">
-                    <span id="modalCert" class="content-rating"></span>
-                    <span id="modalMeta" style="color:#888; font-size: 0.95rem;"></span>
-                </div>
-                
-                <div class="date-row">
-                    <span><b>Released:</b> <span id="modalRelease"></span></span><br>
-                    <span><b>Watched at Cinema:</b> <span id="modalWatched"></span></span>
-                </div>
-
-                <div id="modalCast" class="cast-list"></div>
-
                 <div id="breakdownSection" style="margin-top:20px;">
                     <div id="modalBreakdown" style="display: grid; grid-template-columns: 1fr 1fr; gap: 0 20px;"></div>
                 </div>
-                <div id="modalReview" class="review-text" style="display:none;"></div>
-                <div id="modalProduction" class="production-logos"></div>
+                <div id="modalReview" style="display:none; margin-top: 15px; font-style: italic; color: #888;"></div>
             </div>
         </div>
     </div>
 
     <script>
         const TMDB_TOKEN = "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI3MzNjZmYyNDFlMzBiNDFiYzdmMTZhZTllYzRkOTdhOSIsIm5iZiI6MTc3NDA2MzY2NC40MDksInN1YiI6IjY5YmUxMDMwZjVkMGNkMmNiODcwODc0MCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.6v1eQGdH2fRMCICnH9sbIoVRFpQ2Xy5fgWwbcEL1hII";
-        const studioMap = { "1":"Marvel", "2":"DC", "3":"Disney", "4":"Pixar", "5":"Universal", "6":"Dream Works", "8":"Warner Bros", "10":"Paramount", "12":"Sony Pictures", "19":"20th Century Studios", "24":"A24", "25":"Apple Studios" };
+        
+        // FIXED STUDIO LIST
+        const studioMap = { 
+            "1":"Marvel", "2":"DC", "3":"Disney", "4":"Pixar", "5":"Universal", 
+            "6":"Dream Works", "7":"Illumination", "8":"Warner Bros", "9":"New Line Cinema", 
+            "10":"Paramount", "11":"Miramax", "12":"Sony Pictures", "13":"MGM", 
+            "14":"Lionsgate", "15":"Focus Features", "16":"Lucas film", "17":"20th Century", 
+            "18":"Searchlight", "19":"20th Century Fox / Marvel", "20":"Nickelodeon", 
+            "21":"Toei Animation", "22":"Independant", "23":"Columbia Pictures", 
+            "24":"A24", "25":"Apple Studios" 
+        };
+
         const genreIdMap = { 28: "Action", 12: "Adventure", 16: "Animation", 35: "Comedy", 80: "Crime", 18: "Drama", 10751: "Family", 14: "Fantasy", 27: "Horror", 9648: "Mystery", 878: "Sci-Fi", 53: "Thriller" };
 
         let allMovies = [], reviews = {}, filteredList = [], displayedMovies = [], currentIndex = 0, isLoading = false;
 
         function showPage(pageId) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
             document.getElementById('page-' + pageId).classList.add('active');
-            document.getElementById('nav-' + pageId).classList.add('active');
             window.scrollTo(0,0);
         }
 
         function getRatingColor(score) {
             if (score >= 95) return "#d500f9"; if (score >= 90) return "#00b0ff"; if (score >= 80) return "#00c853"; 
             if (score >= 70) return "#ffea00"; if (score >= 60) return "#ff9100"; if (score >= 40) return "#ff3d00"; 
-            if (score >= 20) return "#d50000"; return "#5d4037";
+            return "#d50000";
         }
 
         Papa.parse("Movie List.xlsx - Reviews.csv", {
@@ -184,24 +161,7 @@
             Papa.parse("Movie List.xlsx - Data.csv", {
                 download: true, header: true, skipEmptyLines: true,
                 complete: function(results) {
-                    let data = results.data.filter(row => row.Movie);
-                    data.sort((a, b) => new Date(b.Date || 0) - new Date(a.Date || 0));
-                    const uniqueMap = new Map();
-                    const years = new Set();
-                    data.forEach(row => {
-                        const title = row.Movie.trim();
-                        const key = title.toLowerCase().replace(/[^a-z0-9]/g, "");
-                        if (!uniqueMap.has(key)) {
-                            uniqueMap.set(key, row);
-                            const d = new Date(row.Date);
-                            if (!isNaN(d.getFullYear())) years.add(d.getFullYear());
-                        }
-                    });
-                    allMovies = Array.from(uniqueMap.values());
-                    const yrSel = document.getElementById('yearFilter');
-                    Array.from(years).sort((a,b) => b-a).forEach(yr => {
-                        const opt = document.createElement('option'); opt.value = yr; opt.innerText = yr; yrSel.appendChild(opt);
-                    });
+                    allMovies = results.data.filter(row => row.Movie);
                     applyFilters();
                     setupInfiniteScroll();
                 }
@@ -210,110 +170,68 @@
 
         function applyFilters() {
             const term = document.getElementById('search').value.toLowerCase();
-            const sortVal = document.getElementById('sort').value;
-            const year = document.getElementById('yearFilter').value;
-
-            filteredList = allMovies.filter(m => {
-                const title = m.Movie.toLowerCase();
-                const mYear = new Date(m.Date).getFullYear().toString();
-                return title.includes(term) && (year === "all" || mYear === year);
-            });
-
-            if (sortVal === "high") filteredList.sort((a,b) => (b.Rating || 0) - (a.Rating || 0));
-            else if (sortVal === "worst") filteredList.sort((a,b) => (a.Rating || 0) - (b.Rating || 0));
-            else filteredList.sort((a, b) => new Date(b.Date || 0) - new Date(a.Date || 0));
-
-            currentIndex = 0; displayedMovies = []; document.getElementById('container').innerHTML = "";
-            document.getElementById('statsBar').innerText = `${filteredList.length} Movies`;
+            filteredList = allMovies.filter(m => m.Movie.toLowerCase().includes(term));
+            currentIndex = 0; document.getElementById('container').innerHTML = "";
             loadNextBatch();
         }
 
         async function loadNextBatch() {
-            if (isLoading) return;
             const nextBatch = filteredList.slice(currentIndex, currentIndex + 12);
             if (nextBatch.length === 0) return;
-            isLoading = true;
             const enriched = await Promise.all(nextBatch.map(async (row) => {
                 const extras = await fetchBasicExtras(row.Movie, row.Date, row.tmdb_id);
                 return { ...row, ...extras };
             }));
             displayedMovies = [...displayedMovies, ...enriched];
             currentIndex += 12; render();
-            isLoading = false;
         }
 
         async function fetchBasicExtras(title, dateStr, tmdbId) {
             try {
                 const headers = { Authorization: `Bearer ${TMDB_TOKEN}` };
-                let result = null;
-                if (tmdbId && tmdbId.toString().trim() !== "") {
-                    const res = await fetch(`https://api.themoviedb.org/3/movie/${tmdbId.toString().trim()}`, { headers });
-                    result = await res.json();
-                } else {
-                    const year = new Date(dateStr).getFullYear();
-                    let url = `https://api.themoviedb.org/3/search/movie?query=${encodeURIComponent(title)}`;
-                    if (!isNaN(year)) url += `&primary_release_year=${year}`;
-                    let response = await fetch(url, { headers });
-                    let data = await response.json();
-                    result = data.results?.[0];
-                }
+                let url = `https://api.themoviedb.org/3/search/movie?query=${encodeURIComponent(title)}`;
+                let response = await fetch(url, { headers });
+                let data = await response.json();
+                let result = data.results?.[0];
                 if (result) {
-                    const poster = result.poster_path ? `https://image.tmdb.org/t/p/w500${result.poster_path}` : "https://via.placeholder.com/500x750";
-                    const genres = result.genre_ids ? result.genre_ids.map(id => genreIdMap[id]).filter(n => n).slice(0, 2).join(", ") : "";
-                    return { poster, genres, tmdb_actual_id: result.id };
+                    return { poster: `https://image.tmdb.org/t/p/w500${result.poster_path}` };
                 }
-                return { poster: "https://via.placeholder.com/500x750", genres: "", tmdb_actual_id: null };
-            } catch(e) { return { poster: "https://via.placeholder.com/500x750", genres: "", tmdb_actual_id: null }; }
+                return { poster: "https://via.placeholder.com/500x750" };
+            } catch(e) { return { poster: "https://via.placeholder.com/500x750" }; }
         }
 
-        async function openModal(i) {
+        function openModal(i) {
             const m = displayedMovies[i];
             const color = getRatingColor(m.Rating);
-            
             document.getElementById('modalTitle').innerText = m.Movie;
             document.getElementById('modalImg').src = m.poster;
             document.getElementById('modalScore').innerText = Math.round(m.Rating || 0);
             document.getElementById('modalScore').style.color = color;
-            document.getElementById('modalWatched').innerText = m.Date;
-            document.getElementById('modalRelease').innerText = "Loading...";
-            document.getElementById('modalCert').innerText = "-";
-            document.getElementById('modalCast').innerHTML = "";
-            document.getElementById('modalProduction').innerHTML = "";
-            
-            document.getElementById('movieModal').style.display = 'flex';
-
-            if (m.tmdb_actual_id) {
-                const res = await fetch(`https://api.themoviedb.org/3/movie/${m.tmdb_actual_id}?append_to_response=credits,release_dates`, {
-                    headers: { Authorization: `Bearer ${TMDB_TOKEN}` }
-                });
-                const data = await res.json();
-                
-                // IMPROVED CERTIFICATION SEARCH
-                const usRelease = data.release_dates.results.find(r => r.iso_3166_1 === "US");
-                let cert = "NR";
-                if (usRelease) {
-                    const theatrical = usRelease.release_dates.find(rd => rd.certification !== "");
-                    cert = theatrical ? theatrical.certification : usRelease.release_dates[0].certification;
-                }
-                document.getElementById('modalCert').innerText = cert || "G";
-                document.getElementById('modalRelease').innerText = data.release_date || "Unknown";
-
-                const cast = data.credits.cast.slice(0, 5).map(c => c.name).join(", ");
-                document.getElementById('modalCast').innerHTML = `<b style="color:#e50914; font-size:0.7rem; text-transform:uppercase;">Top Cast</b><br>${cast}`;
-
-                document.getElementById('modalMeta').innerText = `${m.genres ? m.genres + ' • ' : ''}${studioMap[m.Studio] || 'Cinema'}`;
-
-                const logos = data.production_companies.filter(c => c.logo_path).slice(0, 3).map(c => 
-                    `<img src="https://image.tmdb.org/t/p/w200${c.logo_path}" title="${c.name}">`
-                ).join("");
-                document.getElementById('modalProduction').innerHTML = logos;
-            }
-
-            document.getElementById('modalBreakdown').innerHTML = renderStat("Story", m.Story) + renderStat("Character", m.Character) + renderStat("Visuals", m.Visuals) + renderStat("Performance", m.Performance) + renderStat("Pacing", m.Pacing);
+            document.getElementById('modalBreakdown').innerHTML = 
+                renderStat("Story", m.Story) + 
+                renderStat("Character", m.Character) + 
+                renderStat("Visuals", m.Visuals) +
+                renderStat("Performance", m.Performance) +
+                renderStat("Pacing", m.Pacing);
             
             const revBox = document.getElementById('modalReview');
             const revTxt = reviews[m.Movie.trim().toLowerCase()];
             if(revTxt) { revBox.innerText = `"${revTxt}"`; revBox.style.display = 'block'; } else { revBox.style.display = 'none'; }
+            
+            document.getElementById('movieModal').style.display = 'flex';
+        }
+
+        // FIXED RATING BARS LOGIC
+        function renderStat(label, val) {
+            if(!val || val == 0) return "";
+            return `<div>
+                <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:#aaa; margin-top:8px;">
+                    <span>${label}</span><span>${val}%</span>
+                </div>
+                <div class="detail-bar-bg">
+                    <div class="detail-bar-fill" style="width:${val}%; background:${getRatingColor(val)}"></div>
+                </div>
+            </div>`;
         }
 
         function render() {
@@ -333,18 +251,10 @@
             }).join('');
         }
 
-        function renderStat(label, val) {
-            if(!val || val == 0) return "";
-            return `<div><div style="display:flex; justify-content:space-between; font-size:0.7rem; color:#888;"><span>${label}</span><span>${val}</span></div><div class="detail-bar-bg"><div class="detail-bar-fill" style="width:${val}%; background:${getRatingColor(val)}"></div></div></div>`;
-        }
-
         function closeModal() { document.getElementById('movieModal').style.display = 'none'; }
         window.onclick = (e) => { if(e.target.className === 'modal') closeModal(); };
-        function setupInfiniteScroll() { new IntersectionObserver((entries) => { if(entries[0].isIntersecting && !isLoading) loadNextBatch(); }, {threshold: 0.1}).observe(document.getElementById('sentinel')); }
-        
+        function setupInfiniteScroll() { new IntersectionObserver((entries) => { if(entries[0].isIntersecting) loadNextBatch(); }).observe(document.getElementById('sentinel')); }
         document.getElementById('search').addEventListener('input', applyFilters);
-        document.getElementById('yearFilter').addEventListener('change', applyFilters);
-        document.getElementById('sort').addEventListener('change', applyFilters);
     </script>
 </body>
 </html>
