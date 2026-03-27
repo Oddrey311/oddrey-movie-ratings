@@ -157,7 +157,15 @@
 
     <script>
         const TMDB_TOKEN = "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI3MzNjZmYyNDFlMzBiNDFiYzdmMTZhZTllYzRkOTdhOSIsIm5iZiI6MTc3NDA2MzY2NC40MDksInN1YiI6IjY5YmUxMDMwZjVkMGNkMmNiODcwODc0MCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.6v1eQGdH2fRMCICnH9sbIoVRFpQ2Xy5fgWwbcEL1hII";
-        const studioMap = { "1":"Marvel", "2":"DC", "3":"Disney", "4":"Pixar", "5":"Universal", "6":"Dream Works", "8":"Warner Bros", "10":"Paramount", "12":"Sony Pictures", "19":"20th Century Studios", "24":"A24", "25":"Apple Studios" };
+        // Updated Studio Map
+        const studioMap = { 
+            "1": "Marvel", "2": "DC", "3": "Disney", "4": "Pixar", "5": "Universal", 
+            "6": "Dream Works", "7": "Illumination", "8": "Warner Bros", "9": "New Line Cinema", 
+            "10": "Paramount", "11": "Miramax", "12": "Sony Pictures", "13": "MGM", 
+            "14": "Lionsgate", "15": "Focus Features", "16": "Lucas film", "17": "20th Century", 
+            "18": "Searchlight", "19": "20th Century", "20": "Nickelodeon", "21": "Toei Animation", 
+            "22": "Independent", "23": "Columbia Pictures", "24": "A24", "25": "Apple Studios" 
+        };
         const genreIdMap = { 28: "Action", 12: "Adventure", 16: "Animation", 35: "Comedy", 80: "Crime", 18: "Drama", 10751: "Family", 14: "Fantasy", 27: "Horror", 9648: "Mystery", 878: "Sci-Fi", 53: "Thriller" };
 
         let allMovies = [], reviews = {}, filteredList = [], displayedMovies = [], currentIndex = 0, isLoading = false;
