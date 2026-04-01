@@ -12,7 +12,7 @@
         /* HEADER & NAVIGATION */
         header { padding: 40px 20px 20px; background: linear-gradient(to bottom, #1a1a1a, #0f0f0f); }
         .header-img { width: 100%; max-width: 450px; height: auto; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.8); border: 1px solid #333; cursor: pointer; }
-        nav { margin-bottom: 20px; display: flex; justify-content: center; gap: 25px; }
+        nav { margin-bottom: 20px; display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; }
         nav a { color: #888; text-decoration: none; text-transform: uppercase; font-size: 0.85rem; font-weight: bold; letter-spacing: 2px; transition: 0.3s; cursor: pointer; }
         nav a:hover, nav a.active { color: #e50914; }
 
@@ -26,6 +26,20 @@
         .content-card h2 { color: #e50914; margin-top: 0; text-transform: uppercase; }
         .rating-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 20px; }
         .rating-item { padding: 10px; border-radius: 8px; background: #222; font-size: 0.9rem; border-left: 4px solid #444; }
+
+        /* NERD STATS DASHBOARD */
+        .stats-dashboard { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 20px; }
+        .stat-card { background: #1a1a1a; padding: 25px; border-radius: 15px; border: 1px solid #333; }
+        .stat-card h3 { color: #e50914; margin-top: 0; border-bottom: 1px solid #333; padding-bottom: 10px; text-transform: uppercase; font-size: 1.1rem; }
+        .stat-list { list-style: none; padding: 0; margin: 0; }
+        .stat-list li { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed #222; font-size: 0.9rem; align-items: center; }
+        .stat-list li:last-child { border-bottom: none; }
+        .stat-list li b { color: #ddd; }
+        .stat-list li span { color: #e50914; font-weight: bold; background: #222; padding: 3px 8px; border-radius: 6px; }
+        .stat-highlight-container { display: flex; justify-content: space-around; text-align: center; margin-bottom: 20px; }
+        .stat-highlight-box { background: #1a1a1a; padding: 20px; border-radius: 15px; border: 1px solid #333; flex: 1; margin: 0 10px; }
+        .stat-highlight-box h4 { margin: 0; color: #888; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px; }
+        .stat-highlight-box .big-num { font-size: 2.5rem; font-weight: 800; color: #e50914; margin: 10px 0 0; }
 
         /* CONTROLS */
         .controls { position: sticky; top: 0; background: #1a1a1a; padding: 15px; z-index: 100; border-bottom: 2px solid #e50914; display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; align-items: center; }
@@ -69,7 +83,9 @@
             .modal-content { flex-direction: column; width: 88%; padding: 20px; margin-top: 50px; margin-bottom: 40px; }
             .modal-left { width: 100%; flex: auto; }
             #search { width: 100%; }
-            .modal-close { position: fixed; top: 15px; right: 15px; width: 40px; height: 40px; border-width: 2px; z-index: 9999; box-shadow: 0 4px 10px rgba(0,0,0,0.8); } 
+            .modal-close { position: fixed; top: 15px; right: 15px; width: 40px; height: 40px; border-width: 2px; z-index: 9999; box-shadow: 0 4px 10px rgba(0,0,0,0.8); }
+            .stat-highlight-container { flex-direction: column; gap: 10px; }
+            .stat-highlight-box { margin: 0; }
         }
     </style>
 </head>
@@ -79,7 +95,8 @@
         <img src="header.jpg" alt="Oddrey's Cinema" class="header-img" onclick="showPage('home')">
         <h1>Oddrey's Movie Ratings</h1>
         <nav>
-            <a onclick="showPage('home')" id="nav-home">Movie List</a>
+            <a onclick="showPage('home')" id="nav-home" class="active">Movie List</a>
+            <a onclick="showPage('stats')" id="nav-stats">Nerd Stats</a>
             <a onclick="showPage('about')" id="nav-about">About Me</a>
             <a onclick="showPage('contact')" id="nav-contact">Contact</a>
         </nav>
@@ -99,6 +116,55 @@
         </div>
         <div id="container" class="movie-grid"></div>
         <div id="sentinel" style="padding:50px; color:#444;">SCROLL FOR MORE</div>
+    </div>
+
+    <div id="page-stats" class="page">
+        
+        <div class="stat-highlight-container">
+            <div class="stat-highlight-box">
+                <h4>Total Cinema Trips</h4>
+                <div class="big-num" id="stat-total-trips">0</div>
+            </div>
+            <div class="stat-highlight-box">
+                <h4>Unique Movies</h4>
+                <div class="big-num" id="stat-unique-movies">0</div>
+            </div>
+            <div class="stat-highlight-box">
+                <h4>Average Rating</h4>
+                <div class="big-num" id="stat-avg-rating">0</div>
+            </div>
+        </div>
+
+        <div class="stats-dashboard">
+            <div class="stat-card">
+                <h3>Top 10 Highest Rated</h3>
+                <ul class="stat-list" id="stat-top-high"></ul>
+            </div>
+            <div class="stat-card">
+                <h3>Top 10 Lowest Rated</h3>
+                <ul class="stat-list" id="stat-top-low"></ul>
+            </div>
+            <div class="stat-card">
+                <h3>Movies Seen Multiple Times</h3>
+                <ul class="stat-list" id="stat-multiple"></ul>
+            </div>
+            <div class="stat-card">
+                <h3>Most Watched Studios</h3>
+                <ul class="stat-list" id="stat-studios"></ul>
+            </div>
+            <div class="stat-card">
+                <h3>Busiest Cinema Years</h3>
+                <ul class="stat-list" id="stat-years"></ul>
+            </div>
+            <div class="stat-card">
+                <h3>Busiest Cinema Months</h3>
+                <ul class="stat-list" id="stat-months"></ul>
+            </div>
+            <div class="stat-card">
+                <h3>Favorite Day of the Week</h3>
+                <ul class="stat-list" id="stat-days"></ul>
+            </div>
+        </div>
     </div>
 
     <div id="page-about" class="page">
@@ -168,10 +234,9 @@
 
     <script>
         const TMDB_TOKEN = "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI3MzNjZmYyNDFlMzBiNDFiYzdmMTZhZTllYzRkOTdhOSIsIm5iZiI6MTc3NDA2MzY2NC40MDksInN1YiI6IjY5YmUxMDMwZjVkMGNkMmNiODcwODc0MCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.6v1eQGdH2fRMCICnH9sbIoVRFpQ2Xy5fgWwbcEL1hII";
-        
         const genreIdMap = { 28: "Action", 12: "Adventure", 16: "Animation", 35: "Comedy", 80: "Crime", 18: "Drama", 10751: "Family", 14: "Fantasy", 27: "Horror", 9648: "Mystery", 878: "Sci-Fi", 53: "Thriller" };
 
-        let allMovies = [], reviews = {}, filteredList = [], displayedMovies = [], currentIndex = 0, isLoading = false;
+        let rawMovies = [], allMovies = [], reviews = {}, filteredList = [], displayedMovies = [], currentIndex = 0, isLoading = false;
 
         function showPage(pageId) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -199,8 +264,11 @@
             Papa.parse("Movie List.xlsx - Data.csv", {
                 download: true, header: true, skipEmptyLines: true,
                 complete: function(results) {
-                    let data = results.data.filter(row => row.Movie);
+                    rawMovies = results.data.filter(row => row.Movie); 
+                    
+                    let data = [...rawMovies];
                     data.sort((a, b) => new Date(b.Date || 0) - new Date(a.Date || 0));
+                    
                     const uniqueMap = new Map();
                     const years = new Set();
                     const studios = new Set();
@@ -210,10 +278,10 @@
                         const key = title.toLowerCase().replace(/[^a-z0-9]/g, "");
                         if (!uniqueMap.has(key)) {
                             uniqueMap.set(key, row);
-                            const d = new Date(row.Date);
-                            if (!isNaN(d.getFullYear())) years.add(d.getFullYear());
-                            if (row.Studio && row.Studio.trim() !== "") studios.add(row.Studio.trim());
                         }
+                        const d = new Date(row.Date);
+                        if (!isNaN(d.getFullYear())) years.add(d.getFullYear());
+                        if (row.Studio && row.Studio.trim() !== "") studios.add(row.Studio.trim());
                     });
                     
                     allMovies = Array.from(uniqueMap.values());
@@ -233,6 +301,7 @@
 
                     applyFilters();
                     setupInfiniteScroll();
+                    generateStats(); 
                 }
             });
         }
@@ -383,6 +452,67 @@
         function renderStat(label, val) {
             if(!val || val == 0) return "";
             return `<div><div style="display:flex; justify-content:space-between; font-size:0.9rem; font-weight:bold; color:#ddd; margin-bottom: 4px;"><span>${label}</span><span>${val}</span></div><div class="detail-bar-bg"><div class="detail-bar-fill" style="width:${val}%; background:${getRatingColor(val)}"></div></div></div>`;
+        }
+
+        // --- NEW STATS GENERATOR FUNCTION ---
+        function generateStats() {
+            let totalTrips = rawMovies.length;
+            let uniqueMovies = allMovies.length;
+            
+            // Calculate Average Rating
+            let validRatings = rawMovies.filter(m => m.Rating && !isNaN(m.Rating));
+            let sumRatings = validRatings.reduce((sum, m) => sum + parseFloat(m.Rating), 0);
+            let avgRating = validRatings.length > 0 ? (sumRatings / validRatings.length).toFixed(1) : 0;
+
+            document.getElementById('stat-total-trips').innerText = totalTrips;
+            document.getElementById('stat-unique-movies').innerText = uniqueMovies;
+            document.getElementById('stat-avg-rating').innerText = avgRating;
+
+            // Sort logic for Top 10 High and Low
+            let sortedByRating = [...allMovies].filter(m => m.Rating && !isNaN(m.Rating)).sort((a,b) => parseFloat(b.Rating) - parseFloat(a.Rating));
+            let topHigh = sortedByRating.slice(0, 10);
+            let topLow = [...sortedByRating].reverse().slice(0, 10);
+
+            // Tally frequencies
+            let years = {}, months = {}, days = {}, studios = {}, movieCounts = {};
+            const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+            const dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+
+            rawMovies.forEach(m => {
+                let d = new Date(m.Date);
+                if (!isNaN(d.getTime())) {
+                    years[d.getFullYear()] = (years[d.getFullYear()] || 0) + 1;
+                    months[monthNames[d.getMonth()]] = (months[monthNames[d.getMonth()]] || 0) + 1;
+                    days[dayNames[d.getDay()]] = (days[dayNames[d.getDay()]] || 0) + 1;
+                }
+                
+                let s = (m.Studio || "").trim();
+                if (s) studios[s] = (studios[s] || 0) + 1;
+                
+                let title = m.Movie.trim();
+                movieCounts[title] = (movieCounts[title] || 0) + 1;
+            });
+
+            // Helper to sort and format frequency objects
+            const formatTopList = (obj, limit, isNum = true) => {
+                return Object.entries(obj)
+                    .sort((a,b) => b[1] - a[1])
+                    .slice(0, limit)
+                    .map(item => `<li><b>${item[0]}</b> <span>${item[1]} ${isNum ? 'Views' : ''}</span></li>`)
+                    .join('');
+            };
+
+            document.getElementById('stat-top-high').innerHTML = topHigh.map(m => `<li><b>${m.Movie}</b> <span style="background:${getRatingColor(m.Rating)}">${Math.round(m.Rating)}</span></li>`).join('');
+            document.getElementById('stat-top-low').innerHTML = topLow.map(m => `<li><b>${m.Movie}</b> <span style="background:${getRatingColor(m.Rating)}">${Math.round(m.Rating)}</span></li>`).join('');
+            
+            // Multiple Watches filter
+            let multipleWatches = Object.entries(movieCounts).filter(e => e[1] > 1).sort((a,b) => b[1] - a[1]);
+            document.getElementById('stat-multiple').innerHTML = multipleWatches.length > 0 ? multipleWatches.map(item => `<li><b>${item[0]}</b> <span>${item[1]} Views</span></li>`).join('') : "<li><b>No rewatches logged yet!</b></li>";
+
+            document.getElementById('stat-studios').innerHTML = formatTopList(studios, 10);
+            document.getElementById('stat-years').innerHTML = formatTopList(years, 10);
+            document.getElementById('stat-months').innerHTML = formatTopList(months, 12);
+            document.getElementById('stat-days').innerHTML = formatTopList(days, 7);
         }
 
         function closeModal() { document.getElementById('movieModal').style.display = 'none'; }
