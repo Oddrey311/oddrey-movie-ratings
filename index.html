@@ -172,7 +172,7 @@
     <div id="page-about" class="page">
         <div class="content-card">
             <h2>The Person Behind the Ratings</h2>
-            <p>Welcome! I love getting away to the cinema and believe every movie deserves a fair shake. This archive is my personal journey through the big screen, tracking everything I've watched at the cinema since 2014.This all started with an obseesion with superhero movies, but now I am expanding my horizons.</p>
+            <p>Welcome! I'm a massive cinema enthusiast who believes every movie deserves a fair shake. This archive is my personal journey through the big screen, tracking everything I've watched at the cinema since 2014.</p>
             
             <h3 style="color:#eee; margin-top:30px;">My Rating System</h3>
             <p>I use a weighted 100-point system to keep things objective, but "Enjoyment" always plays a role. Here is how the colors break down:</p>
@@ -241,10 +241,8 @@
         const reviewsUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSNC76cSSuzzbBwi4k4EpvzZcvb9c3BM9UL14jz-3Qn-vG5q6Hk7H9mtdauISs9jw/pub?gid=820406341&single=true&output=csv";
         const dataUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSNC76cSSuzzbBwi4k4EpvzZcvb9c3BM9UL14jz-3Qn-vG5q6Hk7H9mtdauISs9jw/pub?gid=348311167&single=true&output=csv";
 
-        // Restored missing global variables
         let rawMovies = [], allMovies = [], reviews = {}, filteredList = [], displayedMovies = [], currentIndex = 0, isLoading = false;
 
-        // Restored missing navigation function
         function showPage(pageId) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
@@ -253,7 +251,6 @@
             window.scrollTo(0,0);
         }
 
-        // Restored missing color function
         function getRatingColor(score) {
             if (score >= 95) return "#d500f9"; if (score >= 90) return "#00b0ff"; if (score >= 80) return "#00c853"; 
             if (score >= 70) return "#ffea00"; if (score >= 60) return "#ff9100"; if (score >= 40) return "#ff3d00"; 
@@ -443,7 +440,12 @@
             
             const revBox = document.getElementById('modalReview');
             const revTxt = reviews[m.Movie.trim().toLowerCase()];
-            if(revTxt) { revBox.innerText = `"${revTxt}"`; revBox.style.display = 'block'; } else { revBox.style.display = 'none'; }
+            if(revTxt) { 
+                revBox.innerHTML = `<strong style="display:block; color:#e50914; font-style:normal; font-size:0.9rem; text-transform:uppercase; margin-bottom:4px; letter-spacing:1px;">Oddrey Says:</strong>"${revTxt}"`; 
+                revBox.style.display = 'block'; 
+            } else { 
+                revBox.style.display = 'none'; 
+            }
         }
 
         function render() {
