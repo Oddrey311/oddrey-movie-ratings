@@ -436,8 +436,14 @@
                 document.getElementById('modalProduction').innerHTML = logos;
             }
 
-            document.getElementById('modalBreakdown').innerHTML = renderStat("Story", m.Story) + renderStat("Character", m.Character) + renderStat("Visuals", m.Visuals) + renderStat("Performance", m.Performance) + renderStat("Pacing", m.Pacing)
-renderStat("Genre Fulfillment", m.Genre);
+            document.getElementById('modalBreakdown').innerHTML = 
+                renderStat("Story", m.Story) + 
+                renderStat("Character", m.Character) + 
+                renderStat("Visuals", m.Visuals) + 
+                renderStat("Performance", m.Performance) + 
+                renderStat("Pacing", m.Pacing) + 
+                renderStat("Genre", m.Genre) + 
+                renderStat("Enjoyment", m.Enjoyment, 5);
             
             const revBox = document.getElementById('modalReview');
             const revTxt = reviews[m.Movie.trim().toLowerCase()];
@@ -465,9 +471,13 @@ renderStat("Genre Fulfillment", m.Genre);
             }).join('');
         }
 
-        function renderStat(label, val) {
-            if(!val || val == 0) return "";
-            return `<div><div style="display:flex; justify-content:space-between; font-size:0.9rem; font-weight:bold; color:#ddd; margin-bottom: 4px;"><span>${label}</span><span>${val}</span></div><div class="detail-bar-bg"><div class="detail-bar-fill" style="width:${val}%; background:${getRatingColor(val)}"></div></div></div>`;
+        function renderStat(label, val, max) {
+            if(!val || val === "" || val == 0) return "";
+            let numVal = parseFloat(val);
+            let percent = max ? (numVal / max) * 100 : numVal;
+            let displayVal = max ? `${numVal}/${max}` : numVal;
+            let color = max ? getRatingColor(percent) : getRatingColor(numVal);
+            return `<div><div style="display:flex; justify-content:space-between; font-size:0.9rem; font-weight:bold; color:#ddd; margin-bottom: 4px;"><span>${label}</span><span>${displayVal}</span></div><div class="detail-bar-bg"><div class="detail-bar-fill" style="width:${percent > 100 ? 100 : percent}%; background:${color}"></div></div></div>`;
         }
 
         function generateStats() {
