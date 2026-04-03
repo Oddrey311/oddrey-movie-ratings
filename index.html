@@ -104,7 +104,7 @@
         <nav>
             <a onclick="showPage('home')" id="nav-home" class="active">Movie List</a>
             <a onclick="showPage('stats')" id="nav-stats">Nerd Stats</a>
-            <a onclick="showPage('about')" id="nav-about">About Me</a>
+            <a onclick="showPage('about')" id="nav-about">About Me & My Rating System</a>
             <a onclick="showPage('contact')" id="nav-contact">Contact</a>
         </nav>
     </header>
@@ -170,12 +170,24 @@
     </div>
 
     <div id="page-about" class="page">
-        <div class="content-card">
-            <h2>The Person Behind the Ratings</h2>
+        <div class="content-card" style="text-align: center;">
+            <h2>About Me & My Rating System</h2>
             <p>Welcome! I'm a massive cinema enthusiast who believes every movie deserves a fair shake. This archive is my personal journey through the big screen, tracking everything I've watched at the cinema since 2014.</p>
             
-            <h3 style="color:#eee; margin-top:30px;">My Rating System</h3>
-            <p>I use a weighted 100-point system to keep things objective, but "Enjoyment" always plays a role. Here is how the colors break down:</p>
+            <h3 style="color:#eee; margin-top:30px;">The 100-Point Weighted Scale</h3>
+            <p>I use a weighted 100-point system to keep things objective, while still making sure personal enjoyment plays a role. Each film is judged across seven categories:</p>
+            <ul style="color:#ccc; line-height: 1.8; margin-bottom: 30px; text-align: left; display: inline-block; background: #222; padding: 20px 40px; border-radius: 12px; border: 1px solid #333;">
+                <li><b>Story / Plot:</b> 25 Points</li>
+                <li><b>Character Development:</b> 20 Points</li>
+                <li><b>Performance / Acting:</b> 15 Points</li>
+                <li><b>Genre Fulfillment:</b> 15 Points</li>
+                <li><b>Pacing / Editing:</b> 10 Points</li>
+                <li><b>Visuals / Cinematography:</b> 10 Points</li>
+                <li><b>Personal Enjoyment:</b> 5 Points</li>
+            </ul>
+
+            <h3 style="color:#eee; margin-top:10px;">The Color Legend</h3>
+            <p>Here is how those final scores break down into tiers:</p>
             <div class="rating-grid">
                 <div class="rating-item" style="border-color:#d500f9"><b>95-100:</b> Masterpiece. Life-changing cinema.</div>
                 <div class="rating-item" style="border-color:#00b0ff"><b>90-94:</b> Elite. Incredible execution.</div>
@@ -442,8 +454,8 @@
                 renderStat("Visuals", m.Visuals) + 
                 renderStat("Performance", m.Performance) + 
                 renderStat("Pacing", m.Pacing) + 
-                renderStat("Genre", m.Genre) + 
-                renderStat("Enjoyment", m.Enjoyment, 5);
+                renderStat("Genre Fulfillment", m.Genre) + 
+                renderStat("Personal Enjoyment", m.Enjoyment, 5);
             
             const revBox = document.getElementById('modalReview');
             const revTxt = reviews[m.Movie.trim().toLowerCase()];
