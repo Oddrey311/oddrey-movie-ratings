@@ -436,7 +436,8 @@
                 document.getElementById('modalProduction').innerHTML = logos;
             }
 
-            document.getElementById('modalBreakdown').innerHTML = renderStat("Story", m.Story) + renderStat("Character", m.Character) + renderStat("Visuals", m.Visuals) + renderStat("Performance", m.Performance) + renderStat("Pacing", m.Pacing);
+            document.getElementById('modalBreakdown').innerHTML = renderStat("Story", m.Story) + renderStat("Character", m.Character) + renderStat("Visuals", m.Visuals) + renderStat("Performance", m.Performance) + renderStat("Pacing", m.Pacing)
+renderStat("Genre Fulfillment", m.Genre);
             
             const revBox = document.getElementById('modalReview');
             const revTxt = reviews[m.Movie.trim().toLowerCase()];
