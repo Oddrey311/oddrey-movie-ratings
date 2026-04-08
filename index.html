@@ -172,9 +172,7 @@
     <div id="page-about" class="page">
         <div class="content-card" style="text-align: center;">
             <h2>About Me & My Rating System</h2>
-            <p>Welcome! For me, there’s no better getaway than the cinema. I believe every movie deserves a fair shake, and this archive is the personal chronicle of my journey through the big screen since 2014.
-
-My obsession started in the worlds of superheroes and sci-fi, but I’ve been on a mission to open up and give every genre a seat at the table. From blockbusters to indie gems, this is where I track my evolving taste—one film at a time.</p>
+            Welcome! For me, there’s no better getaway than the cinema. I believe every movie deserves a fair shake, and this archive is the personal chronicle of my journey through the big screen since 2014. My obsession started in the worlds of superheroes and sci-fi, but I’ve been on a mission to open up and give every genre a seat at the table. From blockbusters to indie gems, this is where I track my evolving taste—one film at a time.</p>
             
             <h3 style="color:#eee; margin-top:30px;">The 100-Point Weighted Scale</h3>
             <p>I use a weighted 100-point system to keep things objective, while still making sure personal enjoyment plays a role. Each film is judged across seven categories:</p>
@@ -227,8 +225,7 @@ My obsession started in the worlds of superheroes and sci-fi, but I’ve been on
                 </div>
                 
                 <div class="date-row">
-                    <span><b>Released:</b> <span id="modalRelease"></span></span><br>
-                    <span><b>Watched at Cinema:</b> <span id="modalWatched"></span></span>
+                    <span><b>Released:</b> <span id="modalRelease"></span></span>
                 </div>
 
                 <p id="modalSynopsis" class="synopsis"></p>
@@ -240,7 +237,11 @@ My obsession started in the worlds of superheroes and sci-fi, but I’ve been on
                     <div id="modalBreakdown" style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px 25px;"></div>
                 </div>
                 
-                <div id="modalStudioText" style="margin-top: 15px; font-weight: bold; color: #ddd; font-size: 0.95rem;"></div>
+                <div class="date-row" style="margin-top: 15px; border-top: 1px dashed #333; padding-top: 15px;">
+                    <span><b>First Watched at Cinema:</b> <span id="modalWatched"></span></span>
+                </div>
+                
+                <div id="modalStudioText" style="margin-top: 10px; font-weight: bold; color: #ddd; font-size: 0.95rem;"></div>
                 <div id="modalProduction" class="production-logos"></div>
                 
                 <div id="modalReview" class="review-text" style="display:none; margin-top: 20px; font-style: italic; color: #888;"></div>
@@ -292,7 +293,8 @@ My obsession started in the worlds of superheroes and sci-fi, but I’ve been on
                     rawMovies = results.data.filter(row => row.Movie); 
                     
                     let data = [...rawMovies];
-                    data.sort((a, b) => new Date(b.Date || 0) - new Date(a.Date || 0));
+                    // IMPORTANT FIX: Sort Oldest-first so we grab the initial rating details
+                    data.sort((a, b) => new Date(a.Date || 0) - new Date(b.Date || 0));
                     
                     const uniqueMap = new Map();
                     const years = new Set();
@@ -301,9 +303,17 @@ My obsession started in the worlds of superheroes and sci-fi, but I’ve been on
                     data.forEach(row => {
                         const title = row.Movie.trim();
                         const key = title.toLowerCase().replace(/[^a-z0-9]/g, "");
+                        
                         if (!uniqueMap.has(key)) {
-                            uniqueMap.set(key, row);
+                            // Save the original rating data and flag the EarliestDate
+                            uniqueMap.set(key, { ...row, EarliestDate: row.Date });
+                        } else {
+                            // It's a rewatch! Update the sorting Date so it still pops up under "Most Recent"
+                            // But DO NOT overwrite the original ratings or the EarliestDate
+                            let existing = uniqueMap.get(key);
+                            existing.Date = row.Date; 
                         }
+
                         const d = new Date(row.Date);
                         if (!isNaN(d.getFullYear())) years.add(d.getFullYear());
                         if (row.Studio && row.Studio.trim() !== "") studios.add(row.Studio.trim());
@@ -402,7 +412,7 @@ My obsession started in the worlds of superheroes and sci-fi, but I’ve been on
             document.getElementById('modalImg').src = m.poster;
             document.getElementById('modalScore').innerText = Math.round(m.Rating || 0);
             document.getElementById('modalScore').style.color = color;
-            document.getElementById('modalWatched').innerText = m.Date;
+            document.getElementById('modalWatched').innerText = m.EarliestDate; // Now pulls the earliest date watched
             document.getElementById('modalRelease').innerText = "Loading...";
             document.getElementById('modalCert').innerText = "-";
             document.getElementById('modalCast').innerHTML = "";
