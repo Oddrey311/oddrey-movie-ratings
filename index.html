@@ -7,7 +7,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <style>
         /* BASE & THEME */
-        body { font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background: #0f0f0f; color: white; text-align: center; padding: 0; margin: 0; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+        body { font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background: #0f0f0f; color: white; text-align: center; padding: 0; margin: 0; -webkit-font-smoothing: antialiased; overflow-x: hidden; display: flex; flex-direction: column; min-height: 100vh; }
         
         /* HEADER & NAVIGATION */
         header { padding: 40px 20px 20px; background: linear-gradient(to bottom, #1a1a1a, #0f0f0f); }
@@ -17,7 +17,7 @@
         nav a:hover, nav a.active { color: #e50914; }
 
         /* PAGE SECTIONS */
-        .page { display: none; padding: 20px; max-width: 1000px; margin: 0 auto; text-align: left; animation: fadeIn 0.4s ease; }
+        .page { display: none; padding: 20px; max-width: 1000px; margin: 0 auto; text-align: left; animation: fadeIn 0.4s ease; flex: 1; width: 100%; box-sizing: border-box; }
         .page.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
@@ -82,6 +82,10 @@
         .production-logos img { height: 20px; filter: brightness(0) invert(1); }
         .detail-bar-bg { width: 100%; height: 10px; background: #333; border-radius: 5px; margin-top: 4px; margin-bottom: 15px; overflow: hidden; }
         .detail-bar-fill { height: 100%; border-radius: 5px; transition: width 0.6s ease; }
+
+        /* FOOTER */
+        footer { padding: 40px 20px; text-align: center; border-top: 1px dashed #333; background: #0f0f0f; margin-top: auto; }
+        .retro-counter { display: block; margin: 10px auto 0; border: 2px solid #333; border-radius: 4px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
 
         /* MOBILE RESPONSIVE FIXES */
         @media (max-width: 768px) {
@@ -172,7 +176,7 @@
     <div id="page-about" class="page">
         <div class="content-card" style="text-align: center;">
             <h2>About Me & My Rating System</h2>
-            Welcome! For me, there’s no better getaway than the cinema. I believe every movie deserves a fair shake, and this archive is the personal chronicle of my journey through the big screen since 2014. My obsession started in the worlds of superheroes and sci-fi, but I’ve been on a mission to open up and give every genre a seat at the table. From blockbusters to indie gems, this is where I track my evolving taste—one film at a time.</p>
+            <p>Welcome! For me, there's no better getaway than the cinema. I believe every movie deserves a fair shake, and this archive is the personal chronicle of my journey through the big screen since 2014. My obsession started in the worlds of superheroes and sci-fi, but I've been on a mission to open up and give every genre a seat at the table. From blockbusters to indie gems, this is where I track my evolving taste - one film at a time.</p>
             
             <h3 style="color:#eee; margin-top:30px;">The 100-Point Weighted Scale</h3>
             <p>I use a weighted 100-point system to keep things objective, while still making sure personal enjoyment plays a role. Each film is judged across seven categories:</p>
@@ -196,7 +200,7 @@
                 <div class="rating-item" style="border-color:#ff9100"><b>60-69:</b> Decent. Has some flaws.</div>
                 <div class="rating-item" style="border-color:#ff3d00"><b>40-59:</b> Mediocre. Struggled to engage.</div>
                 <div class="rating-item" style="border-color:#d50000"><b>20-39:</b> Poor. Disappointing.</div>
-                <div class="rating-item" style="border-color:#5d4037"><b>0-19:</b> Absymal. Hard to sit through.</div>
+                <div class="rating-item" style="border-color:#5d4037"><b>0-19:</b> Abysmal. Hard to sit through.</div>
             </div>
         </div>
     </div>
@@ -204,8 +208,12 @@
     <div id="page-contact" class="page">
         <div class="content-card" style="text-align:center;">
             <h2>Get In Touch</h2>
-            <p>Have a movie recommendation or want to discuss a rating? I'd love to hear from you.</p>
-            <a href="mailto:audreykcollins@comcast.net" style="display:inline-block; margin-top:20px; padding:15px 30px; background:#e50914; color:white; text-decoration:none; border-radius:10px; font-weight:bold; font-size:1.1rem;">Send Me an Email</a>
+            <p>Have a movie recommendation or want to discuss a rating? Drop it in the form below.</p>
+            
+            <div style="margin-top: 30px; border-radius: 12px; overflow: hidden; border: 1px solid #333; background: #222;">
+                <iframe src="https://docs.google.com/forms/d/e/1FAIpQLScu21K4-kRrK9MHOJq09rC_8LD9RAN0aEqUWlmapmnCHIzxjg/viewform?embedded=true" width="100%" height="600" frameborder="0" marginheight="0" marginwidth="0">Loading...</iframe>
+            </div>
+
             <p style="margin-top:30px; color:#666; font-size:0.9rem;">I'll try to get back to you as soon as I've finished my popcorn!</p>
         </div>
     </div>
@@ -248,6 +256,11 @@
             </div>
         </div>
     </div>
+
+    <footer>
+        <p style="text-transform: uppercase; letter-spacing: 2px; font-size: 0.75rem; color: #666; margin: 0;">Total Site Views</p>
+        <img class="retro-counter" src="https://profile-counter.glitch.me/oddreys-movie-archive/bg.svg" alt="Retro Hit Counter">
+    </footer>
 
     <script>
         const TMDB_TOKEN = "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI3MzNjZmYyNDFlMzBiNDFiYzdmMTZhZTllYzRkOTdhOSIsIm5iZiI6MTc3NDA2MzY2NC40MDksInN1YiI6IjY5YmUxMDMwZjVkMGNkMmNiODcwODc0MCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.6v1eQGdH2fRMCICnH9sbIoVRFpQ2Xy5fgWwbcEL1hII";
@@ -293,7 +306,6 @@
                     rawMovies = results.data.filter(row => row.Movie); 
                     
                     let data = [...rawMovies];
-                    // IMPORTANT FIX: Sort Oldest-first so we grab the initial rating details
                     data.sort((a, b) => new Date(a.Date || 0) - new Date(b.Date || 0));
                     
                     const uniqueMap = new Map();
@@ -305,11 +317,8 @@
                         const key = title.toLowerCase().replace(/[^a-z0-9]/g, "");
                         
                         if (!uniqueMap.has(key)) {
-                            // Save the original rating data and flag the EarliestDate
                             uniqueMap.set(key, { ...row, EarliestDate: row.Date });
                         } else {
-                            // It's a rewatch! Update the sorting Date so it still pops up under "Most Recent"
-                            // But DO NOT overwrite the original ratings or the EarliestDate
                             let existing = uniqueMap.get(key);
                             existing.Date = row.Date; 
                         }
@@ -412,7 +421,7 @@
             document.getElementById('modalImg').src = m.poster;
             document.getElementById('modalScore').innerText = Math.round(m.Rating || 0);
             document.getElementById('modalScore').style.color = color;
-            document.getElementById('modalWatched').innerText = m.EarliestDate; // Now pulls the earliest date watched
+            document.getElementById('modalWatched').innerText = m.EarliestDate; 
             document.getElementById('modalRelease').innerText = "Loading...";
             document.getElementById('modalCert').innerText = "-";
             document.getElementById('modalCast').innerHTML = "";
