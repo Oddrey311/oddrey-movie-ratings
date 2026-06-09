@@ -329,8 +329,8 @@
                         } else {
                             let existing = uniqueMap.get(key);
                             
-                            // If it had no rating before (was "Coming Soon") and now has one, save the new ratings
-                            if ((!existing.Rating || existing.Rating.toString().trim() === "") && row.Rating) {
+                            // Checking for blank DATE to determine if rating was pulled yet
+                            if ((!existing.Date || existing.Date.toString().trim() === "") && row.Rating) {
                                 existing.Rating = row.Rating;
                                 existing.Story = row.Story;
                                 existing.Character = row.Character;
@@ -401,24 +401,34 @@
 
             if (sortVal === "high") {
                 filteredList.sort((a,b) => {
+                    let upA = !a.Date || a.Date.toString().trim() === "";
+                    let upB = !b.Date || b.Date.toString().trim() === "";
+                    if (upA && !upB) return 1; // force upcoming to bottom of high list
+                    if (!upA && upB) return -1;
+                    
                     let rA = a.Rating && a.Rating.toString().trim() !== "" ? parseFloat(a.Rating) : -1;
                     let rB = b.Rating && b.Rating.toString().trim() !== "" ? parseFloat(b.Rating) : -1;
                     return rB - rA;
                 });
             } else if (sortVal === "worst") {
                 filteredList.sort((a,b) => {
+                    let upA = !a.Date || a.Date.toString().trim() === "";
+                    let upB = !b.Date || b.Date.toString().trim() === "";
+                    if (upA && !upB) return 1; // force upcoming to bottom of worst list
+                    if (!upA && upB) return -1;
+
                     let rA = a.Rating && a.Rating.toString().trim() !== "" ? parseFloat(a.Rating) : 999;
                     let rB = b.Rating && b.Rating.toString().trim() !== "" ? parseFloat(b.Rating) : 999;
                     return rA - rB;
                 });
             } else {
-                // Modified logic to ensure upcoming movies are forced to the top
                 filteredList.sort((a, b) => {
-                    let upA = !a.Rating || a.Rating.toString().trim() === "";
-                    let upB = !b.Rating || b.Rating.toString().trim() === "";
+                    let upA = !a.Date || a.Date.toString().trim() === "";
+                    let upB = !b.Date || b.Date.toString().trim() === "";
                     
-                    if (upA && !upB) return -1;
+                    if (upA && !upB) return -1; // force upcoming to top of recent list
                     if (!upA && upB) return 1;
+                    if (upA && upB) return a.Movie.localeCompare(b.Movie); // alphabetize multiple upcoming movies
                     
                     let tA = a.Date && a.Date.trim() !== "" ? new Date(a.Date).getTime() : 0;
                     if(isNaN(tA)) tA = 0;
@@ -473,7 +483,7 @@
 
         async function openModal(i) {
             const m = displayedMovies[i];
-            const isUpcoming = !m.Rating || m.Rating.toString().trim() === "";
+            const isUpcoming = !m.Date || m.Date.toString().trim() === "";
             const color = isUpcoming ? "#aaa" : getRatingColor(m.Rating);
             
             document.getElementById('modalTitle').innerText = m.Movie;
@@ -561,7 +571,7 @@
 
         function render() {
             document.getElementById('container').innerHTML = displayedMovies.map((m, i) => {
-                const isUpcoming = !m.Rating || m.Rating.toString().trim() === "";
+                const isUpcoming = !m.Date || m.Date.toString().trim() === "";
                 const scoreDisplay = isUpcoming ? "Coming Soon" : Math.round(m.Rating || 0);
                 const barColor = isUpcoming ? "#444" : getRatingColor(m.Rating || 0);
                 const barWidth = isUpcoming ? 0 : Math.round(m.Rating || 0);
@@ -589,9 +599,9 @@
         }
 
         function generateStats() {
-            // ONLY process stats for movies that actually have a rating
-            let watchedRaw = rawMovies.filter(m => m.Rating && m.Rating.toString().trim() !== "");
-            let watchedUnique = allMovies.filter(m => m.Rating && m.Rating.toString().trim() !== "");
+            // ONLY process stats for movies that actually have a rating/date
+            let watchedRaw = rawMovies.filter(m => m.Date && m.Date.toString().trim() !== "");
+            let watchedUnique = allMovies.filter(m => m.Date && m.Date.toString().trim() !== "");
 
             let totalTrips = watchedRaw.length;
             let uniqueMovies = watchedUnique.length;
