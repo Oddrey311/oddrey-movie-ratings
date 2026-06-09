@@ -229,7 +229,7 @@
             <span class="modal-close" onclick="closeModal()">&times;</span>
             <div class="modal-left">
                 <img id="modalImg" src="">
-                <div style="margin-top:20px;"><span id="modalScore" style="font-size: 4.5rem; font-weight: 800;"></span></div>
+                <div style="margin-top:20px; display:flex; align-items:center; justify-content:center; height:80px;"><span id="modalScore" style="font-weight: 800; line-height: 1;"></span></div>
             </div>
             <div class="modal-right">
                 <h2 id="modalTitle" style="margin:0;"></h2>
@@ -307,7 +307,14 @@
                     rawMovies = results.data.filter(row => row.Movie); 
                     
                     let data = [...rawMovies];
-                    data.sort((a, b) => new Date(a.Date || 0) - new Date(b.Date || 0));
+                    // Sort Oldest-first so we grab the initial rating details
+                    data.sort((a, b) => {
+                        let tA = a.Date && a.Date.trim() !== "" ? new Date(a.Date).getTime() : 0;
+                        if(isNaN(tA)) tA = 0;
+                        let tB = b.Date && b.Date.trim() !== "" ? new Date(b.Date).getTime() : 0;
+                        if(isNaN(tB)) tB = 0;
+                        return tA - tB; 
+                    });
                     
                     const uniqueMap = new Map();
                     const years = new Set();
@@ -318,14 +325,39 @@
                         const key = title.toLowerCase().replace(/[^a-z0-9]/g, "");
                         
                         if (!uniqueMap.has(key)) {
-                            uniqueMap.set(key, { ...row, EarliestDate: row.Date });
+                            uniqueMap.set(key, { ...row, EarliestDate: row.Date && row.Date.trim() !== "" ? row.Date : "" });
                         } else {
                             let existing = uniqueMap.get(key);
-                            existing.Date = row.Date; 
+                            
+                            // If it had no rating before (was "Coming Soon") and now has one, save the new ratings
+                            if ((!existing.Rating || existing.Rating.toString().trim() === "") && row.Rating) {
+                                existing.Rating = row.Rating;
+                                existing.Story = row.Story;
+                                existing.Character = row.Character;
+                                existing.Visuals = row.Visuals;
+                                existing.Performance = row.Performance;
+                                existing.Pacing = row.Pacing;
+                                existing.Genre = row.Genre;
+                                existing.Enjoyment = row.Enjoyment;
+                            }
+
+                            if (existing.EarliestDate === "" && row.Date && row.Date.trim() !== "") {
+                                existing.EarliestDate = row.Date;
+                            }
+
+                            if (row.Date && row.Date.trim() !== "") {
+                                existing.Date = row.Date; 
+                            }
+                            
+                            if ((!existing.Studio || existing.Studio.trim() === "") && row.Studio) {
+                                existing.Studio = row.Studio;
+                            }
                         }
 
-                        const d = new Date(row.Date);
-                        if (!isNaN(d.getFullYear())) years.add(d.getFullYear());
+                        if (row.Date && row.Date.trim() !== "") {
+                            const d = new Date(row.Date);
+                            if (!isNaN(d.getFullYear())) years.add(d.getFullYear());
+                        }
                         if (row.Studio && row.Studio.trim() !== "") studios.add(row.Studio.trim());
                     });
                     
@@ -359,7 +391,7 @@
 
             filteredList = allMovies.filter(m => {
                 const title = m.Movie.toLowerCase();
-                const mYear = new Date(m.Date).getFullYear().toString();
+                const mYear = m.Date ? new Date(m.Date).getFullYear().toString() : "";
                 const mStudio = (m.Studio || "").toString().trim();
                 
                 return title.includes(term) && 
@@ -367,9 +399,34 @@
                        (studio === "all" || mStudio === studio);
             });
 
-            if (sortVal === "high") filteredList.sort((a,b) => (b.Rating || 0) - (a.Rating || 0));
-            else if (sortVal === "worst") filteredList.sort((a,b) => (a.Rating || 0) - (b.Rating || 0));
-            else filteredList.sort((a, b) => new Date(b.Date || 0) - new Date(a.Date || 0));
+            if (sortVal === "high") {
+                filteredList.sort((a,b) => {
+                    let rA = a.Rating && a.Rating.toString().trim() !== "" ? parseFloat(a.Rating) : -1;
+                    let rB = b.Rating && b.Rating.toString().trim() !== "" ? parseFloat(b.Rating) : -1;
+                    return rB - rA;
+                });
+            } else if (sortVal === "worst") {
+                filteredList.sort((a,b) => {
+                    let rA = a.Rating && a.Rating.toString().trim() !== "" ? parseFloat(a.Rating) : 999;
+                    let rB = b.Rating && b.Rating.toString().trim() !== "" ? parseFloat(b.Rating) : 999;
+                    return rA - rB;
+                });
+            } else {
+                // Modified logic to ensure upcoming movies are forced to the top
+                filteredList.sort((a, b) => {
+                    let upA = !a.Rating || a.Rating.toString().trim() === "";
+                    let upB = !b.Rating || b.Rating.toString().trim() === "";
+                    
+                    if (upA && !upB) return -1;
+                    if (!upA && upB) return 1;
+                    
+                    let tA = a.Date && a.Date.trim() !== "" ? new Date(a.Date).getTime() : 0;
+                    if(isNaN(tA)) tA = 0;
+                    let tB = b.Date && b.Date.trim() !== "" ? new Date(b.Date).getTime() : 0;
+                    if(isNaN(tB)) tB = 0;
+                    return tB - tA;
+                });
+            }
 
             currentIndex = 0; displayedMovies = []; document.getElementById('container').innerHTML = "";
             document.getElementById('statsBar').innerText = `${filteredList.length} Movies`;
@@ -398,7 +455,7 @@
                     const res = await fetch(`https://api.themoviedb.org/3/movie/${tmdbId.toString().trim()}`, { headers });
                     result = await res.json();
                 } else {
-                    const year = new Date(dateStr).getFullYear();
+                    const year = dateStr && dateStr.trim() !== "" ? new Date(dateStr).getFullYear() : NaN;
                     let url = `https://api.themoviedb.org/3/search/movie?query=${encodeURIComponent(title)}`;
                     if (!isNaN(year)) url += `&primary_release_year=${year}`;
                     let response = await fetch(url, { headers });
@@ -416,13 +473,26 @@
 
         async function openModal(i) {
             const m = displayedMovies[i];
-            const color = getRatingColor(m.Rating);
+            const isUpcoming = !m.Rating || m.Rating.toString().trim() === "";
+            const color = isUpcoming ? "#aaa" : getRatingColor(m.Rating);
             
             document.getElementById('modalTitle').innerText = m.Movie;
             document.getElementById('modalImg').src = m.poster;
-            document.getElementById('modalScore').innerText = Math.round(m.Rating || 0);
-            document.getElementById('modalScore').style.color = color;
-            document.getElementById('modalWatched').innerText = m.EarliestDate; 
+            
+            const scoreEl = document.getElementById('modalScore');
+            if (isUpcoming) {
+                scoreEl.innerText = "COMING\nSOON";
+                scoreEl.style.fontSize = "1.5rem";
+                scoreEl.style.lineHeight = "1.2";
+                scoreEl.style.color = color;
+            } else {
+                scoreEl.innerText = Math.round(m.Rating || 0);
+                scoreEl.style.fontSize = "4.5rem";
+                scoreEl.style.lineHeight = "1";
+                scoreEl.style.color = color;
+            }
+
+            document.getElementById('modalWatched').innerText = isUpcoming ? "Coming Soon" : (m.EarliestDate || "Unknown"); 
             document.getElementById('modalRelease').innerText = "Loading...";
             document.getElementById('modalCert').innerText = "-";
             document.getElementById('modalCast').innerHTML = "";
@@ -470,7 +540,7 @@
                 document.getElementById('modalProduction').innerHTML = logos;
             }
 
-            document.getElementById('modalBreakdown').innerHTML = 
+            document.getElementById('modalBreakdown').innerHTML = isUpcoming ? "" : 
                 renderStat("Story", m.Story) + 
                 renderStat("Character", m.Character) + 
                 renderStat("Visuals", m.Visuals) + 
@@ -491,15 +561,19 @@
 
         function render() {
             document.getElementById('container').innerHTML = displayedMovies.map((m, i) => {
-                const score = Math.round(m.Rating || 0);
-                const barColor = getRatingColor(score);
+                const isUpcoming = !m.Rating || m.Rating.toString().trim() === "";
+                const scoreDisplay = isUpcoming ? "Coming Soon" : Math.round(m.Rating || 0);
+                const barColor = isUpcoming ? "#444" : getRatingColor(m.Rating || 0);
+                const barWidth = isUpcoming ? 0 : Math.round(m.Rating || 0);
+                const scoreStyles = isUpcoming ? "font-size: 1.1rem; color: #aaa; text-transform: uppercase; margin-top: 10px; letter-spacing: 1px;" : `color:${barColor}`;
+
                 return `
                 <div class="movie-card" onclick="openModal(${i})">
                     <img src="${m.poster}" loading="lazy">
-                    <div class="rating-bar-container"><div class="rating-bar-fill" style="width:${score}%; background:${barColor};"></div></div>
+                    <div class="rating-bar-container"><div class="rating-bar-fill" style="width:${barWidth}%; background:${barColor};"></div></div>
                     <div class="info">
                         <h3>${m.Movie}</h3>
-                        <span class="score-text" style="color:${barColor}">${score}</span>
+                        <span class="score-text" style="${scoreStyles}">${scoreDisplay}</span>
                     </div>
                 </div>`;
             }).join('');
@@ -515,13 +589,17 @@
         }
 
         function generateStats() {
-            let totalTrips = rawMovies.length;
-            let uniqueMovies = allMovies.length;
+            // ONLY process stats for movies that actually have a rating
+            let watchedRaw = rawMovies.filter(m => m.Rating && m.Rating.toString().trim() !== "");
+            let watchedUnique = allMovies.filter(m => m.Rating && m.Rating.toString().trim() !== "");
+
+            let totalTrips = watchedRaw.length;
+            let uniqueMovies = watchedUnique.length;
 
             document.getElementById('stat-total-trips').innerText = totalTrips;
             document.getElementById('stat-unique-movies').innerText = uniqueMovies;
 
-            let sortedByRating = [...allMovies].filter(m => m.Rating && !isNaN(m.Rating)).sort((a,b) => parseFloat(b.Rating) - parseFloat(a.Rating));
+            let sortedByRating = [...watchedUnique].sort((a,b) => parseFloat(b.Rating) - parseFloat(a.Rating));
             let topHigh = sortedByRating.slice(0, 10);
             let topLow = [...sortedByRating].reverse().slice(0, 10);
 
@@ -529,7 +607,7 @@
             const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
             const dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
-            rawMovies.forEach(m => {
+            watchedRaw.forEach(m => {
                 let d = new Date(m.Date);
                 if (!isNaN(d.getTime())) {
                     years[d.getFullYear()] = (years[d.getFullYear()] || 0) + 1;
