@@ -321,19 +321,27 @@
                     
                     data.forEach(row => {
                         const rawTitle = row.Movie.trim();
-                        // Strip bracketed text to create the uniqueness key
-                        const baseTitle = rawTitle.replace(/\[.*?\]/g, '').trim();
+                        // baseTitle strips everything inside {} for stats and TMDB matching
+                        const baseTitle = rawTitle.replace(/\{.*?\}/g, '').trim();
+                        // displayTitle simply removes the '{' and '}' symbols but leaves the text
+                        const displayTitle = rawTitle.replace(/[\{\}]/g, '').replace(/\s+/g, ' ').trim();
+                        
                         const key = baseTitle.toLowerCase().replace(/[^a-z0-9]/g, "");
                         
+                        // Mutate row so the rest of the app uses the cleaned display variables
+                        row.Movie = displayTitle; 
+                        row.BaseMovie = baseTitle;
+                        row.RawMovie = rawTitle;
+
                         if (!uniqueMap.has(key)) {
-                            uniqueMap.set(key, { ...row, Movie: rawTitle, EarliestDate: row.Date && row.Date.trim() !== "" ? row.Date : "" });
+                            uniqueMap.set(key, { ...row, EarliestDate: row.Date && row.Date.trim() !== "" ? row.Date : "" });
                         } else {
                             let existing = uniqueMap.get(key);
                             
-                            // Update display title to latest iteration
-                            existing.Movie = rawTitle;
+                            // Update UI text to most recent entry
+                            existing.Movie = displayTitle;
+                            existing.RawMovie = rawTitle;
                             
-                            // If it had no rating before and now has one, save the new ratings
                             if ((!existing.Rating || existing.Rating.toString().trim() === "") && row.Rating) {
                                 existing.Rating = row.Rating;
                                 existing.Story = row.Story;
@@ -345,7 +353,6 @@
                                 existing.Enjoyment = row.Enjoyment;
                             }
 
-                            // Capture custom poster override if available
                             if (row["Custom Poster"] && row["Custom Poster"].trim() !== "") {
                                 existing["Custom Poster"] = row["Custom Poster"].trim();
                             }
@@ -458,7 +465,7 @@
             if (nextBatch.length === 0) return;
             isLoading = true;
             const enriched = await Promise.all(nextBatch.map(async (row) => {
-                const extras = await fetchBasicExtras(row.Movie, row.Date, row.tmdb_id, row["Custom Poster"]);
+                const extras = await fetchBasicExtras(row.BaseMovie, row.Date, row.tmdb_id, row["Custom Poster"]);
                 return { ...row, ...extras };
             }));
             displayedMovies = [...displayedMovies, ...enriched];
@@ -466,20 +473,17 @@
             isLoading = false;
         }
 
-        async function fetchBasicExtras(title, dateStr, tmdbId, customPoster) {
+        async function fetchBasicExtras(baseTitle, dateStr, tmdbId, customPoster) {
             try {
                 const headers = { Authorization: `Bearer ${TMDB_TOKEN}` };
                 let result = null;
-                
-                // Strip bracketed text to help TMDB find the base movie
-                let searchTitle = title.replace(/\[.*?\]/g, '').trim();
 
                 if (tmdbId && tmdbId.toString().trim() !== "") {
                     const res = await fetch(`https://api.themoviedb.org/3/movie/${tmdbId.toString().trim()}`, { headers });
                     result = await res.json();
                 } else {
                     const year = dateStr && dateStr.trim() !== "" ? new Date(dateStr).getFullYear() : NaN;
-                    let url = `https://api.themoviedb.org/3/search/movie?query=${encodeURIComponent(searchTitle)}`;
+                    let url = `https://api.themoviedb.org/3/search/movie?query=${encodeURIComponent(baseTitle)}`;
                     if (!isNaN(year)) url += `&primary_release_year=${year}`;
                     let response = await fetch(url, { headers });
                     let data = await response.json();
@@ -496,7 +500,6 @@
                     tmdb_actual_id = result.id;
                 }
                 
-                // Override with custom poster if provided in spreadsheet
                 if (customPoster && customPoster.trim() !== "") {
                     poster = customPoster.trim();
                 }
@@ -586,9 +589,8 @@
                 renderStat("Personal Enjoyment", m.Enjoyment, 5);
             
             const revBox = document.getElementById('modalReview');
-            // Clean bracket text so reviews map correctly
-            const cleanTitleForReview = m.Movie.replace(/\[.*?\]/g, '').trim().toLowerCase();
-            const revTxt = reviews[cleanTitleForReview] || reviews[m.Movie.trim().toLowerCase()];
+            // Matches against either the exact text written (Avengers: Endgame {Encore}) OR the base text (Avengers: Endgame)
+            const revTxt = reviews[m.RawMovie.toLowerCase()] || reviews[m.BaseMovie.toLowerCase()];
             
             if(revTxt) { 
                 revBox.innerHTML = `<strong style="display:block; color:#e50914; font-style:normal; font-size:0.9rem; text-transform:uppercase; margin-bottom:4px; letter-spacing:1px;">Oddrey Says:</strong>"${revTxt}"`; 
@@ -656,9 +658,8 @@
                 let s = (m.Studio || "").trim();
                 if (s) studios[s] = (studios[s] || 0) + 1;
                 
-                // Group duplicates accurately for stats
-                let rawTitle = m.Movie.trim();
-                let baseTitle = rawTitle.replace(/\[.*?\]/g, '').trim();
+                // Group duplicates accurately for stats using the Base Movie
+                let baseTitle = m.BaseMovie;
                 movieCounts[baseTitle] = (movieCounts[baseTitle] || 0) + 1;
             });
 
