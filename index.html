@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Oddrey's Movie Ratings</title>
     
+    <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-Q5S0L5EK44"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
@@ -286,7 +287,6 @@
             if (score >= 20) return "#d50000"; return "#5d4037";
         }
 
-        // 1. Load Reviews first
         Papa.parse(reviewsUrl, {
             download: true, 
             header: false, 
@@ -297,7 +297,6 @@
             }
         });
 
-        // 2. Load Movie Data second
         function loadMovieData() {
             Papa.parse(dataUrl, {
                 download: true, 
@@ -321,16 +320,21 @@
                     const studios = new Set();
                     
                     data.forEach(row => {
-                        const title = row.Movie.trim();
-                        const key = title.toLowerCase().replace(/[^a-z0-9]/g, "");
+                        const rawTitle = row.Movie.trim();
+                        // Strip bracketed text to create the uniqueness key
+                        const baseTitle = rawTitle.replace(/\[.*?\]/g, '').trim();
+                        const key = baseTitle.toLowerCase().replace(/[^a-z0-9]/g, "");
                         
                         if (!uniqueMap.has(key)) {
-                            uniqueMap.set(key, { ...row, EarliestDate: row.Date && row.Date.trim() !== "" ? row.Date : "" });
+                            uniqueMap.set(key, { ...row, Movie: rawTitle, EarliestDate: row.Date && row.Date.trim() !== "" ? row.Date : "" });
                         } else {
                             let existing = uniqueMap.get(key);
                             
-                            // Checking for blank DATE to determine if rating was pulled yet
-                            if ((!existing.Date || existing.Date.toString().trim() === "") && row.Rating) {
+                            // Update display title to latest iteration
+                            existing.Movie = rawTitle;
+                            
+                            // If it had no rating before and now has one, save the new ratings
+                            if ((!existing.Rating || existing.Rating.toString().trim() === "") && row.Rating) {
                                 existing.Rating = row.Rating;
                                 existing.Story = row.Story;
                                 existing.Character = row.Character;
@@ -339,6 +343,11 @@
                                 existing.Pacing = row.Pacing;
                                 existing.Genre = row.Genre;
                                 existing.Enjoyment = row.Enjoyment;
+                            }
+
+                            // Capture custom poster override if available
+                            if (row["Custom Poster"] && row["Custom Poster"].trim() !== "") {
+                                existing["Custom Poster"] = row["Custom Poster"].trim();
                             }
 
                             if (existing.EarliestDate === "" && row.Date && row.Date.trim() !== "") {
@@ -403,7 +412,7 @@
                 filteredList.sort((a,b) => {
                     let upA = !a.Date || a.Date.toString().trim() === "";
                     let upB = !b.Date || b.Date.toString().trim() === "";
-                    if (upA && !upB) return 1; // force upcoming to bottom of high list
+                    if (upA && !upB) return 1; 
                     if (!upA && upB) return -1;
                     
                     let rA = a.Rating && a.Rating.toString().trim() !== "" ? parseFloat(a.Rating) : -1;
@@ -414,7 +423,7 @@
                 filteredList.sort((a,b) => {
                     let upA = !a.Date || a.Date.toString().trim() === "";
                     let upB = !b.Date || b.Date.toString().trim() === "";
-                    if (upA && !upB) return 1; // force upcoming to bottom of worst list
+                    if (upA && !upB) return 1; 
                     if (!upA && upB) return -1;
 
                     let rA = a.Rating && a.Rating.toString().trim() !== "" ? parseFloat(a.Rating) : 999;
@@ -426,9 +435,9 @@
                     let upA = !a.Date || a.Date.toString().trim() === "";
                     let upB = !b.Date || b.Date.toString().trim() === "";
                     
-                    if (upA && !upB) return -1; // force upcoming to top of recent list
+                    if (upA && !upB) return -1; 
                     if (!upA && upB) return 1;
-                    if (upA && upB) return a.Movie.localeCompare(b.Movie); // alphabetize multiple upcoming movies
+                    if (upA && upB) return a.Movie.localeCompare(b.Movie); 
                     
                     let tA = a.Date && a.Date.trim() !== "" ? new Date(a.Date).getTime() : 0;
                     if(isNaN(tA)) tA = 0;
@@ -449,7 +458,7 @@
             if (nextBatch.length === 0) return;
             isLoading = true;
             const enriched = await Promise.all(nextBatch.map(async (row) => {
-                const extras = await fetchBasicExtras(row.Movie, row.Date, row.tmdb_id);
+                const extras = await fetchBasicExtras(row.Movie, row.Date, row.tmdb_id, row["Custom Poster"]);
                 return { ...row, ...extras };
             }));
             displayedMovies = [...displayedMovies, ...enriched];
@@ -457,33 +466,50 @@
             isLoading = false;
         }
 
-        async function fetchBasicExtras(title, dateStr, tmdbId) {
+        async function fetchBasicExtras(title, dateStr, tmdbId, customPoster) {
             try {
                 const headers = { Authorization: `Bearer ${TMDB_TOKEN}` };
                 let result = null;
+                
+                // Strip bracketed text to help TMDB find the base movie
+                let searchTitle = title.replace(/\[.*?\]/g, '').trim();
+
                 if (tmdbId && tmdbId.toString().trim() !== "") {
                     const res = await fetch(`https://api.themoviedb.org/3/movie/${tmdbId.toString().trim()}`, { headers });
                     result = await res.json();
                 } else {
                     const year = dateStr && dateStr.trim() !== "" ? new Date(dateStr).getFullYear() : NaN;
-                    let url = `https://api.themoviedb.org/3/search/movie?query=${encodeURIComponent(title)}`;
+                    let url = `https://api.themoviedb.org/3/search/movie?query=${encodeURIComponent(searchTitle)}`;
                     if (!isNaN(year)) url += `&primary_release_year=${year}`;
                     let response = await fetch(url, { headers });
                     let data = await response.json();
                     result = data.results?.[0];
                 }
+                
+                let poster = "https://via.placeholder.com/500x750";
+                let genres = "";
+                let tmdb_actual_id = null;
+
                 if (result) {
-                    const poster = result.poster_path ? `https://image.tmdb.org/t/p/w500${result.poster_path}` : "https://via.placeholder.com/500x750";
-                    const genres = result.genre_ids ? result.genre_ids.map(id => genreIdMap[id]).filter(n => n).slice(0, 2).join(", ") : "";
-                    return { poster, genres, tmdb_actual_id: result.id };
+                    poster = result.poster_path ? `https://image.tmdb.org/t/p/w500${result.poster_path}` : poster;
+                    genres = result.genre_ids ? result.genre_ids.map(id => genreIdMap[id]).filter(n => n).slice(0, 2).join(", ") : "";
+                    tmdb_actual_id = result.id;
                 }
-                return { poster: "https://via.placeholder.com/500x750", genres: "", tmdb_actual_id: null };
-            } catch(e) { return { poster: "https://via.placeholder.com/500x750", genres: "", tmdb_actual_id: null }; }
+                
+                // Override with custom poster if provided in spreadsheet
+                if (customPoster && customPoster.trim() !== "") {
+                    poster = customPoster.trim();
+                }
+
+                return { poster, genres, tmdb_actual_id };
+            } catch(e) { 
+                return { poster: customPoster || "https://via.placeholder.com/500x750", genres: "", tmdb_actual_id: null }; 
+            }
         }
 
         async function openModal(i) {
             const m = displayedMovies[i];
-            const isUpcoming = !m.Date || m.Date.toString().trim() === "";
+            const isUpcoming = !m.Rating || m.Rating.toString().trim() === "";
             const color = isUpcoming ? "#aaa" : getRatingColor(m.Rating);
             
             document.getElementById('modalTitle').innerText = m.Movie;
@@ -560,7 +586,10 @@
                 renderStat("Personal Enjoyment", m.Enjoyment, 5);
             
             const revBox = document.getElementById('modalReview');
-            const revTxt = reviews[m.Movie.trim().toLowerCase()];
+            // Clean bracket text so reviews map correctly
+            const cleanTitleForReview = m.Movie.replace(/\[.*?\]/g, '').trim().toLowerCase();
+            const revTxt = reviews[cleanTitleForReview] || reviews[m.Movie.trim().toLowerCase()];
+            
             if(revTxt) { 
                 revBox.innerHTML = `<strong style="display:block; color:#e50914; font-style:normal; font-size:0.9rem; text-transform:uppercase; margin-bottom:4px; letter-spacing:1px;">Oddrey Says:</strong>"${revTxt}"`; 
                 revBox.style.display = 'block'; 
@@ -571,7 +600,7 @@
 
         function render() {
             document.getElementById('container').innerHTML = displayedMovies.map((m, i) => {
-                const isUpcoming = !m.Date || m.Date.toString().trim() === "";
+                const isUpcoming = !m.Rating || m.Rating.toString().trim() === "";
                 const scoreDisplay = isUpcoming ? "Coming Soon" : Math.round(m.Rating || 0);
                 const barColor = isUpcoming ? "#444" : getRatingColor(m.Rating || 0);
                 const barWidth = isUpcoming ? 0 : Math.round(m.Rating || 0);
@@ -599,7 +628,6 @@
         }
 
         function generateStats() {
-            // ONLY process stats for movies that actually have a rating/date
             let watchedRaw = rawMovies.filter(m => m.Date && m.Date.toString().trim() !== "");
             let watchedUnique = allMovies.filter(m => m.Date && m.Date.toString().trim() !== "");
 
@@ -628,8 +656,10 @@
                 let s = (m.Studio || "").trim();
                 if (s) studios[s] = (studios[s] || 0) + 1;
                 
-                let title = m.Movie.trim();
-                movieCounts[title] = (movieCounts[title] || 0) + 1;
+                // Group duplicates accurately for stats
+                let rawTitle = m.Movie.trim();
+                let baseTitle = rawTitle.replace(/\[.*?\]/g, '').trim();
+                movieCounts[baseTitle] = (movieCounts[baseTitle] || 0) + 1;
             });
 
             const formatTopList = (obj, limit) => {
