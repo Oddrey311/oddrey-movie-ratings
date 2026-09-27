@@ -342,7 +342,8 @@
                             existing.Movie = displayTitle;
                             existing.RawMovie = rawTitle;
                             
-                            if ((!existing.Rating || existing.Rating.toString().trim() === "") && row.Rating) {
+                            // *** RESTORED FIX: Check if the previous entry had NO date ***
+                            if ((!existing.Date || existing.Date.toString().trim() === "") && row.Date && row.Date.toString().trim() !== "") {
                                 existing.Rating = row.Rating;
                                 existing.Story = row.Story;
                                 existing.Character = row.Character;
@@ -512,7 +513,7 @@
 
         async function openModal(i) {
             const m = displayedMovies[i];
-            const isUpcoming = !m.Rating || m.Rating.toString().trim() === "";
+            const isUpcoming = !m.Date || m.Date.toString().trim() === "";
             const color = isUpcoming ? "#aaa" : getRatingColor(m.Rating);
             
             document.getElementById('modalTitle').innerText = m.Movie;
@@ -602,7 +603,7 @@
 
         function render() {
             document.getElementById('container').innerHTML = displayedMovies.map((m, i) => {
-                const isUpcoming = !m.Rating || m.Rating.toString().trim() === "";
+                const isUpcoming = !m.Date || m.Date.toString().trim() === "";
                 const scoreDisplay = isUpcoming ? "Coming Soon" : Math.round(m.Rating || 0);
                 const barColor = isUpcoming ? "#444" : getRatingColor(m.Rating || 0);
                 const barWidth = isUpcoming ? 0 : Math.round(m.Rating || 0);
